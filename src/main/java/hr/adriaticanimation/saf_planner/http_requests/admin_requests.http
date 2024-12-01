@@ -1,0 +1,10 @@
+###
+GET localhost:8080/api/admin/test
+Authorization: Bearer {{jwt}}}
+
+###
+GET http://localhost:8080/api/test/open
+
+###
+GET http://localhost:8080/api/test/closed
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMkBlbWFpbC5jb20iLCJpYXQiOjE3MzMwNzM5NjAsImV4cCI6MTczMzA3NzU2MH0.4txX_-oLg2gX42gFFYSshU2FSoLOBQGivlHeIUCyy-4

@@ -4,13 +4,13 @@ server:
 spring:
   application:
     name: saf-planner
-  datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
+  config:
+    import: file:.env[.properties]
   flyway:
     enabled: true
+  profiles:
+    active: dev
 
-logging:
-  level:
-    hr.adriaticanimation.saf-planner: DEBUG
+springdoc:
+  swagger-ui:
+    path: /api-docs

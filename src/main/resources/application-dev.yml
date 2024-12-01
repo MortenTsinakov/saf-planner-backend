@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${DEV_DATABASE_URL}
+    username: ${DEV_DATABASE_USER}
+    password: ${DEV_DATABASE_PASSWORD}
+
+security:
+  jwt:
+    secret-key: ${DEV_JWT_SECRET_KEY}
+    expiration-time: ${DEV_JWT_EXPIRATION_TIME}
+  refresh-token:
+    expiration-time: ${DEV_REFRESH_TOKEN_EXPIRATION_TIME}
+    renewal: ${DEV_REFRESH_TOKEN_RENEWAL}
+
+logging:
+  level:
+    hr.adriaticanimation.saf-planner: DEBUG

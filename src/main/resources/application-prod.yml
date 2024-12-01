@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${PROD_DATABASE_URL}
+    username: ${PROD_DATABASE_USER}
+    password: ${PROD_DATABASE_PASSWORD}
+
+security:
+  jwt:
+    secret-key: ${PROD_JWT_SECRET_KEY}
+    expiration-time: ${PROD_JWT_EXPIRATION_TIME}
+  refresh-token:
+    expiration-time: ${PROD_REFRESH_TOKEN_EXPIRATION_TIME}
+    renewal: ${PROD_REFRESH_TOKEN_RENEWAL}
+
+logging:
+  level:
+    hr.adriaticanimation.saf-planner: INFO
