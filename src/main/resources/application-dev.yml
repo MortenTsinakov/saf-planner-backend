@@ -7,10 +7,6 @@ spring:
 security:
   jwt:
     secret-key: ${DEV_JWT_SECRET_KEY}
-    expiration-time: ${DEV_JWT_EXPIRATION_TIME}
-  refresh-token:
-    expiration-time: ${DEV_REFRESH_TOKEN_EXPIRATION_TIME}
-    renewal: ${DEV_REFRESH_TOKEN_RENEWAL}
 
 logging:
   level:

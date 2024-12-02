@@ -16,10 +16,18 @@ import java.time.Instant;
 @Mapper(componentModel = "spring", imports = {Timestamp.class, Instant.class, UserRole.class})
 public abstract class UserMapper {
 
-    @Autowired
     protected PasswordEncoder passwordEncoder;
-    @Autowired
     protected JwtService jwtService;
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Autowired
+    public void setJwtService(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", expression = "java(passwordEncoder.encode(signUpRequest.password()))")
