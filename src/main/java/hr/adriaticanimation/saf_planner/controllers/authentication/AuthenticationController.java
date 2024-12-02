@@ -7,6 +7,7 @@ import hr.adriaticanimation.saf_planner.dtos.authentication.UserAuthenticationRe
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,13 +26,13 @@ public class AuthenticationController {
 
     @PostMapping("/sign-up")
     @Operation(description = "Create a new user account")
-    public ResponseEntity<UserAuthenticationResponse> signUp(@RequestBody SignUpRequest request) {
+    public ResponseEntity<UserAuthenticationResponse> signUp(@Valid @RequestBody SignUpRequest request) {
         return authenticationService.signUp(request);
     }
 
     @PostMapping("/sign-in")
     @Operation(description = "Sign the user in")
-    public ResponseEntity<UserAuthenticationResponse> signIn(@RequestBody SignInRequest request) {
+    public ResponseEntity<UserAuthenticationResponse> signIn(@Valid @RequestBody SignInRequest request) {
         return authenticationService.signIn(request);
     }
 

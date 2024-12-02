@@ -6,16 +6,21 @@ import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.SignUpExcep
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.nio.charset.MalformedInputException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Slf4j
@@ -31,6 +36,17 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleRefreshTokenException(RefreshTokenException e) {
         log.debug(e.getMessage());
         return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.debug(e.getMessage());
+        BindingResult bindingResult = e.getBindingResult();
+        List<String> errorMessages = bindingResult.getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+        return new ResponseEntity<>(new ErrorResponse(errorMessages.getLast()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UnsupportedJwtException.class)

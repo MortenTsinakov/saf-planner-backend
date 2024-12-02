@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Service for authenticating users
@@ -81,8 +83,8 @@ public class AuthenticationService {
 
         refreshTokenService.deleteUsersPreviousRefreshToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-        UserAuthenticationResponse response = userMapper.userToUserAuthenticationResponse(user);
         HttpHeaders headers = createHeaders(refreshToken.getToken(), refreshTokenExpirationTime);
+        UserAuthenticationResponse response = userMapper.userToUserAuthenticationResponse(user);
 
         return new ResponseEntity<>(response, headers, HttpStatus.OK);
     }
@@ -111,25 +113,37 @@ public class AuthenticationService {
      * @return - authentication response
      */
     public ResponseEntity<UserAuthenticationResponse> refreshToken(HttpServletRequest request) {
+        Cookie refreshTokenCookie = getRefreshTokenCookie(request)
+                .orElseThrow(() -> new RefreshTokenException("Refresh token not found."));
+
+        RefreshToken token = refreshTokenService
+                .findByToken(refreshTokenCookie.getValue())
+                .orElseThrow(() -> new RefreshTokenException("Refresh token not found"));
+
+        // Renews the token if it's close to expiry
+        token = refreshTokenService.verifyExpirationDate(token);
+        User user = token.getUser();
+        UserAuthenticationResponse response = userMapper.userToUserAuthenticationResponse(user);
+        HttpHeaders headers = createHeaders(token.getToken(), refreshTokenExpirationTime);
+
+        return new ResponseEntity<>(response, headers, HttpStatus.OK);
+    }
+
+    /**
+     * Extract refresh token cookie from cookies.
+     *
+     * @param request - received http request
+     * @return - optional of refresh token cookie
+     */
+    private Optional<Cookie> getRefreshTokenCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refreshToken")) {
-                    RefreshToken token = refreshTokenService
-                            .findByToken(cookie.getValue())
-                            .orElseThrow(() -> new RefreshTokenException("Refresh token not found"));
-                    token = refreshTokenService.verifyExpirationDate(token);
-                    User user = token.getUser();
-                    UserAuthenticationResponse response = userMapper.userToUserAuthenticationResponse(user);
-
-                    HttpHeaders headers = createHeaders(token.getToken(), refreshTokenExpirationTime);
-
-                    return new ResponseEntity<>(response, headers, HttpStatus.OK);
-                }
-            }
+        if (cookies == null) {
+            return Optional.empty();
         }
-        throw new RefreshTokenException("Refresh token not found");
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst();
     }
 
     /**
@@ -141,6 +155,13 @@ public class AuthenticationService {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+    /**
+     * Create headers for the response
+     *
+     * @param token - Refresh token
+     * @param expirationTime - Expiry for the refresh token
+     * @return - headers containing the cookie that holds the refresh token
+     */
     private HttpHeaders createHeaders(String token, long expirationTime) {
         HttpHeaders headers = new HttpHeaders();
         ResponseCookie cookie = createCookie(token, expirationTime);
