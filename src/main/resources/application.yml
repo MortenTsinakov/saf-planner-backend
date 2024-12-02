@@ -17,6 +17,7 @@ security:
   refresh-token:
     expiration-time: 604800000
     renewal: 86400000
+
 springdoc:
   swagger-ui:
     path: /api-docs
