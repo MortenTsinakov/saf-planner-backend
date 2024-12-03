@@ -46,7 +46,7 @@ public class RefreshTokenService {
 
     public RefreshToken prolongExpiryDate(RefreshToken refreshToken) {
         if (refreshToken.getExpiryDate().compareTo(Timestamp.from(Instant.now().minusMillis(renewalTime))) > 0) {
-            refreshToken.setExpiryDate(Timestamp.from(Instant.now().minusMillis(expirationTime)));
+            refreshToken.setExpiryDate(Timestamp.from(Instant.now().plusMillis(expirationTime)));
             refreshToken = refreshTokenRepository.save(refreshToken);
         }
         return refreshToken;
