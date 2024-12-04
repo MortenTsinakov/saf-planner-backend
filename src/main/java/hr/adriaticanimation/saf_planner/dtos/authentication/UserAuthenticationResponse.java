@@ -4,6 +4,5 @@ public record UserAuthenticationResponse(
         Long id,
         String email,
         String firstName,
-        String lastName,
-        String jwt
+        String lastName
 ) {}

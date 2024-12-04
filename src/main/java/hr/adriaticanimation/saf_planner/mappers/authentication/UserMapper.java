@@ -36,6 +36,5 @@ public abstract class UserMapper {
     @Mapping(target = "updatedAt", expression = "java(Timestamp.from(Instant.now()))")
     @Mapping(target = "lastLogin", expression = "java(Timestamp.from(Instant.now()))")
     public abstract User signUpRequestToUser(SignUpRequest signUpRequest);
-    @Mapping(target = "jwt", expression = "java(jwtService.generateToken(user))")
     public abstract UserAuthenticationResponse userToUserAuthenticationResponse(User user);
 }

@@ -37,8 +37,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
+    private final JwtService jwtService;
     @Value("${security.refresh-token.expiration-time}")
     private long refreshTokenExpirationTime;
+    @Value("${security.jwt.expiration-time}")
+    private long jwtExpirationTime;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RefreshTokenService refreshTokenService;
@@ -58,8 +61,13 @@ public class AuthenticationService {
             throw new SignUpException("User with given email already exists.");
         }
 
+        String jwtToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-        HttpHeaders headers = createHeaders(refreshToken.getToken(), refreshTokenExpirationTime);
+        HttpHeaders headers = createHeaders(
+                jwtToken,
+                jwtExpirationTime,
+                refreshToken.getToken(),
+                refreshTokenExpirationTime);
         UserAuthenticationResponse response = userMapper.userToUserAuthenticationResponse(user);
 
         return new ResponseEntity<>(response, headers, HttpStatus.OK);
@@ -83,7 +91,12 @@ public class AuthenticationService {
 
         refreshTokenService.deleteUsersPreviousRefreshToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-        HttpHeaders headers = createHeaders(refreshToken.getToken(), refreshTokenExpirationTime);
+        String jwtToken = jwtService.generateToken(user);
+        HttpHeaders headers = createHeaders(
+                jwtToken,
+                jwtExpirationTime,
+                refreshToken.getToken(),
+                refreshTokenExpirationTime);
         UserAuthenticationResponse response = userMapper.userToUserAuthenticationResponse(user);
 
         return new ResponseEntity<>(response, headers, HttpStatus.OK);
@@ -99,7 +112,7 @@ public class AuthenticationService {
 
         refreshTokenService.deleteUsersPreviousRefreshToken(user);
         SignOutResponse response = new SignOutResponse("User was logged out");
-        HttpHeaders headers = createHeaders("", 0);
+        HttpHeaders headers = createHeaders("", 0, "", 0);
 
         return new ResponseEntity<>(response, headers, HttpStatus.OK);
     }
@@ -116,15 +129,21 @@ public class AuthenticationService {
         Cookie refreshTokenCookie = getRefreshTokenCookie(request)
                 .orElseThrow(() -> new RefreshTokenException("Refresh token not found."));
 
-        RefreshToken token = refreshTokenService
+        RefreshToken refreshToken = refreshTokenService
                 .findByToken(refreshTokenCookie.getValue())
                 .orElseThrow(() -> new RefreshTokenException("Refresh token not found"));
 
         // Renews the token if it's close to expiry
-        token = refreshTokenService.verifyExpirationDate(token);
-        User user = token.getUser();
+        refreshToken = refreshTokenService.verifyExpirationDate(refreshToken);
+        User user = refreshToken.getUser();
         UserAuthenticationResponse response = userMapper.userToUserAuthenticationResponse(user);
-        HttpHeaders headers = createHeaders(token.getToken(), refreshTokenExpirationTime);
+        String jwtToken = jwtService.generateToken(user);
+
+        HttpHeaders headers = createHeaders(
+                jwtToken,
+                jwtExpirationTime,
+                refreshToken.getToken(),
+                refreshTokenExpirationTime);
 
         return new ResponseEntity<>(response, headers, HttpStatus.OK);
     }
@@ -158,14 +177,23 @@ public class AuthenticationService {
     /**
      * Create headers for the response
      *
-     * @param token - Refresh token
-     * @param expirationTime - Expiry for the refresh token
-     * @return - headers containing the cookie that holds the refresh token
+     * @param jwtToken - JWT
+     * @param refreshToken - RefreshToken
+     * @param refreshTokenExpirationTime - Expiry for the refresh refreshToken
+     * @return - headers containing the cookie that holds the JWT and refresh token
      */
-    private HttpHeaders createHeaders(String token, long expirationTime) {
+    private HttpHeaders createHeaders(String jwtToken,
+                                      long jwtExpirationTime,
+                                      String refreshToken,
+                                      long refreshTokenExpirationTime) {
         HttpHeaders headers = new HttpHeaders();
-        ResponseCookie cookie = createCookie(token, expirationTime);
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        ResponseCookie jwtCookie = createJwtCookie(jwtToken, jwtExpirationTime);
+        ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken, refreshTokenExpirationTime);
+
+        headers.add(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+        headers.add(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+
         return headers;
     }
 
@@ -176,8 +204,23 @@ public class AuthenticationService {
      * @param expirationTime - amount of time the token will last
      * @return - the cookie for the refresh token
      */
-    private ResponseCookie createCookie(String token, long expirationTime) {
+    private ResponseCookie createRefreshTokenCookie(String token, long expirationTime) {
         return ResponseCookie.from("refreshToken", token)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(expirationTime)
+                .sameSite("Lax")
+                .build();
+    }
+
+    /**
+     * Create a cookie for JWT.
+     *
+     * @param jwtToken - JWT
+     * @return - Response cookie for JWT.
+     */
+    private ResponseCookie createJwtCookie(String jwtToken, long expirationTime) {
+        return ResponseCookie.from("jwt", jwtToken)
                 .httpOnly(true)
                 .path("/")
                 .maxAge(expirationTime)
