@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -80,12 +81,11 @@ public class AuthenticationService {
      * @return - response with necessary details if sign-in was successful, otherwise error
      */
     public ResponseEntity<UserAuthenticationResponse> signIn(SignInRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
+        authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.email(), request.password())
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        User user = getUserFromSecurityContextHolder();
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UsernameNotFoundException("User with given email not found."));
         user.setLastLogin(Timestamp.from(Instant.now()));
         user = userRepository.save(user);
 
