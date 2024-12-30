@@ -6,8 +6,8 @@ POST http://localhost:8080/api/project
 Content-Type: application/json
 
 {
-    "title": "My very first project",
-    "description": "This is a project made for testing out the server implementation",
+    "title": "My second project",
+    "description": "This is a project made for testing out the server implementation - mostly for ordering",
     "estimatedLengthInSeconds": 360
 }
 

@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
-    List<Project> getProjectsByOwner(User owner);
+    List<Project> getProjectsByOwnerOrderByUpdatedAtDesc(User owner);
     Optional<Project> getProjectByIdAndOwner(Long id, User owner);
 }

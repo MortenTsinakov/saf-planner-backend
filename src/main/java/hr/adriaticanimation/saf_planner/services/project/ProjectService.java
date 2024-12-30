@@ -29,7 +29,7 @@ public class ProjectService {
 
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         User user = authenticationService.getUserFromSecurityContextHolder();
-        List<Project> projectList = projectRepository.getProjectsByOwner(user);
+        List<Project> projectList = projectRepository.getProjectsByOwnerOrderByUpdatedAtDesc(user);
         List<ProjectResponse> response = projectList
                 .stream()
                 .map(projectMapper::projectToProjectResponse)
