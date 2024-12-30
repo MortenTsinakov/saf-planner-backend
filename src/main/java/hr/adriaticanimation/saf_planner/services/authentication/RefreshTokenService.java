@@ -3,7 +3,7 @@ package hr.adriaticanimation.saf_planner.services.authentication;
 import hr.adriaticanimation.saf_planner.entities.authentication.RefreshToken;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.RefreshTokenException;
-import hr.adriaticanimation.saf_planner.repositories.RefreshTokenRepository;
+import hr.adriaticanimation.saf_planner.repositories.authentication.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

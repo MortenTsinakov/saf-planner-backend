@@ -1,0 +1,31 @@
+###
+GET http://localhost:8080/api/project
+
+###
+POST http://localhost:8080/api/project
+Content-Type: application/json
+
+{
+    "title": "My very first project",
+    "description": "This is a project made for testing out the server implementation",
+    "estimatedLengthInSeconds": 360
+}
+
+###
+PUT http://localhost:8080/api/project
+Content-Type: application/json
+
+{
+    "projectId": 3,
+    "title": "My very first project",
+    "description": "This is a project made for testing out the server implementation",
+    "estimatedLengthInSeconds": 720
+}
+
+###
+DELETE http://localhost:8080/api/project
+Content-Type: application/json
+
+{
+    "projectId": 2
+}

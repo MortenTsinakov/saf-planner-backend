@@ -9,7 +9,7 @@ import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.RefreshTokenException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.SignUpException;
 import hr.adriaticanimation.saf_planner.mappers.authentication.UserMapper;
-import hr.adriaticanimation.saf_planner.repositories.UserRepository;
+import hr.adriaticanimation.saf_planner.repositories.user.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;

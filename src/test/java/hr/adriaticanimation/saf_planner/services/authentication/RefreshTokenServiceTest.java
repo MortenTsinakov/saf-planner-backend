@@ -3,14 +3,13 @@ package hr.adriaticanimation.saf_planner.services.authentication;
 import hr.adriaticanimation.saf_planner.entities.authentication.RefreshToken;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.RefreshTokenException;
-import hr.adriaticanimation.saf_planner.repositories.RefreshTokenRepository;
+import hr.adriaticanimation.saf_planner.repositories.authentication.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
