@@ -12,14 +12,30 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/api/project
+PUT http://localhost:8080/api/project/title
 Content-Type: application/json
 
 {
-    "projectId": 3,
-    "title": "My very first project",
-    "description": "This is a project made for testing out the server implementation",
-    "estimatedLengthInSeconds": 720
+    "projectId": 14,
+    "title": "Blaa 2"
+}
+
+###
+PUT http://localhost:8080/api/project/description
+Content-Type: application/json
+
+{
+    "projectId": 14,
+    "description": "Description"
+}
+
+###
+PUT http://localhost:8080/api/project/estimated-length
+Content-Type: application/json
+
+{
+    "projectId": 14,
+    "estimatedLengthInSeconds": 182
 }
 
 ###

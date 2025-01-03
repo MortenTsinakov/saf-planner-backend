@@ -4,7 +4,9 @@ import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
-import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectRequest;
+import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectDescriptionRequest;
+import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectEstimatedLengthRequest;
+import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectTitleRequest;
 import hr.adriaticanimation.saf_planner.services.project.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -13,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,10 +43,22 @@ public class ProjectController {
         return projectService.createNewProject(request);
     }
 
-    @PutMapping
-    @Operation(description = "Update project information")
-    public ResponseEntity<ProjectResponse> updateProject(@RequestBody UpdateProjectRequest request) {
-        return projectService.updateProject(request);
+    @PutMapping("/title")
+    @Operation(description = "Update project title")
+    public ResponseEntity<ProjectResponse> updateProjectTitle(@Valid @RequestBody UpdateProjectTitleRequest request) {
+        return projectService.updateProjectTitle(request);
+    }
+
+    @PutMapping("/description")
+    @Operation(description = "Update project description")
+    public ResponseEntity<ProjectResponse> updateProjectDescription(@Valid @RequestBody UpdateProjectDescriptionRequest request) {
+        return projectService.updateProjectDescription(request);
+    }
+
+    @PutMapping("/estimated-length")
+    @Operation(description = "Update project estimated length (in seconds)")
+    public ResponseEntity<ProjectResponse> updateProjectEstimatedLength(@Valid @RequestBody UpdateProjectEstimatedLengthRequest request) {
+        return projectService.updateProjectEstimatedLength(request);
     }
 
     @DeleteMapping

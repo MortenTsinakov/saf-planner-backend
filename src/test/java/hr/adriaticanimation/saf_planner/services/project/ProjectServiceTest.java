@@ -4,7 +4,9 @@ import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
-import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectRequest;
+import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectDescriptionRequest;
+import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectEstimatedLengthRequest;
+import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectTitleRequest;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
@@ -99,16 +101,15 @@ class ProjectServiceTest {
     }
 
     @Test
-    void testUpdateProject() {
+    void testUpdateProjectTitle() {
         User user = new User();
-        UpdateProjectRequest request = new UpdateProjectRequest(
-                1L,
-                "Title",
-                "Description",
-                60);
         Project project = new Project();
+        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(
+                1L,
+                "Title"
+        );
         ProjectResponse response = new ProjectResponse(
-                null, null, null, null, null, null, null
+                1L, "Title", null, null, null, null, null
         );
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
@@ -116,7 +117,7 @@ class ProjectServiceTest {
         when(projectRepository.save(project)).thenReturn(project);
         when(projectMapper.projectToProjectResponse(project)).thenReturn(response);
 
-        ResponseEntity<ProjectResponse> result = projectService.updateProject(request);
+        ResponseEntity<ProjectResponse> result = projectService.updateProjectTitle(request);
 
         verify(authenticationService).getUserFromSecurityContextHolder();
         verify(projectRepository).getProjectByIdAndOwner(request.projectId(), user);
@@ -124,22 +125,70 @@ class ProjectServiceTest {
         verify(projectMapper).projectToProjectResponse(project);
 
         assertTrue(result.getStatusCode().is2xxSuccessful());
+        assertEquals(request.title(), project.getTitle());
+        assertNotNull(project.getUpdatedAt());
     }
 
     @Test
-    void testUpdateProjectNoProjectWithGivenId() {
-        UpdateProjectRequest request = new UpdateProjectRequest(null, null, null, null);
+    void testUpdateProjectTitleProjectNotFound() {
         User user = new User();
+        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(1L, "Title");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(projectRepository.getProjectByIdAndOwner(request.projectId(), user)).thenReturn(Optional.empty());
+        when(projectRepository.getProjectByIdAndOwner(1L, user)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> projectService.updateProject(request));
+        assertThrows(ResourceNotFoundException.class, () -> projectService.updateProjectTitle(request));
+
+        verifyNoMoreInteractions(projectRepository);
+        verifyNoInteractions(projectMapper);
+    }
+
+    @Test
+    void testUpdateProjectDescription() {
+        User user = new User();
+        Project project = new Project();
+        UpdateProjectDescriptionRequest request = new UpdateProjectDescriptionRequest(1L, "Description");
+        ProjectResponse response = new ProjectResponse(1L, "Description", null, null, null, null, null);
+
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(projectRepository.getProjectByIdAndOwner(request.projectId(), user)).thenReturn(Optional.of(project));
+        when(projectRepository.save(project)).thenReturn(project);
+        when(projectMapper.projectToProjectResponse(project)).thenReturn(response);
+
+        ResponseEntity<ProjectResponse> result = projectService.updateProjectDescription(request);
 
         verify(authenticationService).getUserFromSecurityContextHolder();
         verify(projectRepository).getProjectByIdAndOwner(request.projectId(), user);
-        verifyNoInteractions(projectMapper);
-        verifyNoMoreInteractions(projectRepository);
+        verify(projectRepository).save(project);
+        verify(projectMapper).projectToProjectResponse(project);
+
+        assertTrue(result.getStatusCode().is2xxSuccessful());
+        assertEquals(request.description(), project.getDescription());
+        assertNotNull(project.getUpdatedAt());
+    }
+
+    @Test
+    void testUpdateProjectEstimatedLength() {
+        User user = new User();
+        Project project = new Project();
+        UpdateProjectEstimatedLengthRequest request = new UpdateProjectEstimatedLengthRequest(1L, 120);
+        ProjectResponse response = new ProjectResponse(1L, null, null, null, null, null, null);
+
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(projectRepository.getProjectByIdAndOwner(request.projectId(), user)).thenReturn(Optional.of(project));
+        when(projectRepository.save(project)).thenReturn(project);
+        when(projectMapper.projectToProjectResponse(project)).thenReturn(response);
+
+        ResponseEntity<ProjectResponse> result = projectService.updateProjectEstimatedLength(request);
+
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(projectRepository).getProjectByIdAndOwner(request.projectId(), user);
+        verify(projectRepository).save(project);
+        verify(projectMapper).projectToProjectResponse(project);
+
+        assertTrue(result.getStatusCode().is2xxSuccessful());
+        assertEquals(request.estimatedLengthInSeconds(), project.getEstimatedLengthInSeconds());
+        assertNotNull(project.getUpdatedAt());
     }
 
     @Test
