@@ -104,12 +104,12 @@ public class FragmentService {
     }
 
     @Transactional
-    public ResponseEntity<FragmentResponse> updateFragmentOnTimelineStatus(@Valid UpdateFragmentOnTimelineStatus request) {
+    public ResponseEntity<FragmentResponse> updateFragmentOnTimelineStatus(UpdateFragmentOnTimelineStatus request) {
         return updateFragment(request, fragment -> fragment.setOnTimeline(request.isOnTimeline()));
     }
 
     @Transactional
-    public ResponseEntity<DeleteFragmentResponse> deleteFragment(@Valid DeleteFragmentRequest request) {
+    public ResponseEntity<DeleteFragmentResponse> deleteFragment(DeleteFragmentRequest request) {
         User user = authenticationService.getUserFromSecurityContextHolder();
         Fragment fragment = fragmentRepository.getFragmentById(request.fragmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Fragment not found"));
