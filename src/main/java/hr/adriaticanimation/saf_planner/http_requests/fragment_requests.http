@@ -1,0 +1,60 @@
+###
+GET http://localhost:8080/api/fragment?projectId=7
+
+###
+POST http://localhost:8080/api/fragment
+Content-Type: application/json
+
+{
+  "shortDescription": "Fragment to be added at the 2nd position",
+  "longDescription": "",
+  "durationInSeconds": 5,
+  "onTimeline": true,
+  "position": 2,
+  "projectId": 7
+}
+
+###
+PUT http://localhost:8080/api/fragment/short-description
+Content-Type: application/json
+
+{
+    "fragmentId": 1,
+    "shortDescription": "Updated short description, using consumers"
+}
+
+###
+PUT http://localhost:8080/api/fragment/long-description
+Content-Type: application/json
+
+{
+    "fragmentId": 1,
+    "longDescription": "Updated long description, using consumers. Everything works, correct?"
+}
+
+###
+PUT http://localhost:8080/api/fragment/duration
+Content-Type: application/json
+
+{
+    "fragmentId": 1,
+    "durationInSeconds": 10
+}
+
+###
+PUT http://localhost:8080/api/fragment/on-timeline
+Content-Type: application/json
+
+{
+    "fragmentId": 1,
+    "onTimeline": false
+}
+
+###
+DELETE http://localhost:8080/api/fragment
+Content-Type: application/json
+
+{
+    "fragmentId": 2
+}
+
