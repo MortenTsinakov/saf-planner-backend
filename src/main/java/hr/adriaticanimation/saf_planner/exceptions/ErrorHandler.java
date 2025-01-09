@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.exceptions;
 
 import hr.adriaticanimation.saf_planner.dtos.error.ErrorResponse;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.RefreshTokenException;
+import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.SignUpException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -29,6 +30,12 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleRefreshTokenException(RefreshTokenException e) {
         log.debug(e.getMessage());
         return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
+        log.debug(e.getMessage());
+        return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

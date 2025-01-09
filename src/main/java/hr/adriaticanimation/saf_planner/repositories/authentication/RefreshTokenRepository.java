@@ -1,4 +1,4 @@
-package hr.adriaticanimation.saf_planner.repositories;
+package hr.adriaticanimation.saf_planner.repositories.authentication;
 
 import hr.adriaticanimation.saf_planner.entities.authentication.RefreshToken;
 import hr.adriaticanimation.saf_planner.entities.user.User;

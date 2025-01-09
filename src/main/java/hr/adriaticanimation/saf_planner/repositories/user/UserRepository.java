@@ -1,4 +1,4 @@
-package hr.adriaticanimation.saf_planner.repositories;
+package hr.adriaticanimation.saf_planner.repositories.user;
 
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
