@@ -4,6 +4,7 @@ import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
+import hr.adriaticanimation.saf_planner.dtos.fragment.MoveFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentDuration;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentLongDescription;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentOnTimelineStatus;
@@ -67,6 +68,12 @@ public class FragmentController {
     @Operation(description = "Update fragment's on timeline status")
     public ResponseEntity<FragmentResponse> updateFragmentOnTimelineStatus(@Valid @RequestBody UpdateFragmentOnTimelineStatus request) {
         return fragmentService.updateFragmentOnTimelineStatus(request);
+    }
+
+    @PutMapping("/move")
+    @Operation(description = "Drag and drop a fragment to a new position")
+    public ResponseEntity<FragmentResponse> moveFragment(@Valid @RequestBody MoveFragmentRequest request) {
+        return fragmentService.moveFragment(request);
     }
 
     @DeleteMapping

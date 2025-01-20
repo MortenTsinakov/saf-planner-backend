@@ -4,6 +4,7 @@ import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
+import hr.adriaticanimation.saf_planner.dtos.fragment.MoveFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentDuration;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentLongDescription;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentOnTimelineStatus;
@@ -18,7 +19,6 @@ import hr.adriaticanimation.saf_planner.repositories.fragment.FragmentRepository
 import hr.adriaticanimation.saf_planner.repositories.project.ProjectRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -124,6 +124,36 @@ public class FragmentService {
         projectRepository.save(project);
 
         DeleteFragmentResponse response = new DeleteFragmentResponse(fragment.getId(), "Fragment was successfully deleted");
+        return ResponseEntity.ok(response);
+    }
+
+    @Transactional
+    public ResponseEntity<FragmentResponse> moveFragment(MoveFragmentRequest request) {
+        Fragment fragment = fragmentRepository.getFragmentById(request.fragmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Fragment not found"));
+        Project project = fragment.getProject();
+        User user = authenticationService.getUserFromSecurityContextHolder();
+
+        if (!user.getId().equals(project.getOwner().getId())) {
+            throw new ResourceNotFoundException("Fragment not found");
+        }
+
+        if (fragment.getPosition() == request.newPosition()) {
+            throw new IllegalArgumentException("Fragment is already in requested position");
+        }
+
+        if (request.newPosition() > fragment.getPosition()) {
+            fragmentRepository.shiftFragmentPositionsBackward(project.getId(), fragment.getPosition(), request.newPosition());
+        } else {
+            fragmentRepository.shiftFragmentPositionsForward(project.getId(), request.newPosition(), fragment.getPosition());
+        }
+
+        fragment.setPosition(request.newPosition());
+        fragment = fragmentRepository.save(fragment);
+        project.setUpdatedAt(Timestamp.from(Instant.now()));
+        projectRepository.save(project);
+
+        FragmentResponse response = fragmentMapper.fragmentToFragmentResponse(fragment);
         return ResponseEntity.ok(response);
     }
 }
