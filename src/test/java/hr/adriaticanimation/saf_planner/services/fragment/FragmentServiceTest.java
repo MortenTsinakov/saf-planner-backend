@@ -4,6 +4,7 @@ import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
+import hr.adriaticanimation.saf_planner.dtos.fragment.MoveFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentDuration;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentLongDescription;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentOnTimelineStatus;
@@ -399,5 +400,144 @@ class FragmentServiceTest {
         verifyNoMoreInteractions(authenticationService);
         verifyNoMoreInteractions(fragmentRepository);
         verifyNoInteractions(projectRepository);
+    }
+
+    @Test
+    void testMoveFragmentBackwardSuccess() {
+        User owner = User.builder()
+                .id(1L)
+                .build();
+        Project project = Project.builder()
+                .id(1L)
+                .owner(owner)
+                .build();
+        Fragment fragment = Fragment.builder()
+                .id(1L)
+                .project(project)
+                .position(5)
+                .build();
+        MoveFragmentRequest request = new MoveFragmentRequest(1L, 1);
+        FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 1, project.getId());
+
+        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(owner);
+        when(fragmentRepository.save(fragment)).thenReturn(fragment);
+        when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
+
+        ResponseEntity<FragmentResponse> result = fragmentService.moveFragment(request);
+
+        assertTrue(result.getStatusCode().is2xxSuccessful());
+
+        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(fragmentRepository).shiftFragmentPositionsForward(project.getId(), 1, 5);
+        verify(projectRepository).save(project);
+        verify(fragmentRepository).save(fragment);
+        verify(fragmentMapper).fragmentToFragmentResponse(fragment);
+    }
+
+    @Test
+    void testMoveFragmentForwardSuccess() {
+        User owner = User.builder()
+                .id(1L)
+                .build();
+        Project project = Project.builder()
+                .id(1L)
+                .owner(owner)
+                .build();
+        Fragment fragment = Fragment.builder()
+                .id(1L)
+                .project(project)
+                .position(2)
+                .build();
+        MoveFragmentRequest request = new MoveFragmentRequest(1L, 7);
+        FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 7, project.getId());
+
+        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(owner);
+        when(fragmentRepository.save(fragment)).thenReturn(fragment);
+        when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
+
+        ResponseEntity<FragmentResponse> result = fragmentService.moveFragment(request);
+
+        assertTrue(result.getStatusCode().is2xxSuccessful());
+
+        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(fragmentRepository).shiftFragmentPositionsBackward(project.getId(), 2, 7);
+        verify(projectRepository).save(project);
+        verify(fragmentRepository).save(fragment);
+        verify(fragmentMapper).fragmentToFragmentResponse(fragment);
+    }
+
+    @Test
+    void testMoveFragmentNotFound() {
+        MoveFragmentRequest request = new MoveFragmentRequest(1L, 7);
+
+        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.moveFragment(request));
+
+        verifyNoMoreInteractions(fragmentRepository);
+        verifyNoInteractions(authenticationService);
+        verifyNoInteractions(projectRepository);
+        verifyNoInteractions(fragmentMapper);
+    }
+
+    @Test
+    void testMoveFragmentProjectOwnerIsNotTheUser() {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        User owner = User.builder()
+                .id(2L)
+                .build();
+        Project project = Project.builder()
+                .owner(owner)
+                .id(1L)
+                .build();
+        Fragment fragment = Fragment.builder()
+                .id(1L)
+                .project(project)
+                .position(5)
+                .build();
+        MoveFragmentRequest request = new MoveFragmentRequest(1L, 1);
+
+        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.moveFragment(request));
+
+        verifyNoMoreInteractions(fragmentRepository);
+        verifyNoInteractions(projectRepository);
+        verifyNoInteractions(fragmentMapper);
+    }
+
+    @Test
+    void testMoveFragmentAlreadyInRequestedPosition() {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Project project = Project.builder()
+                .owner(user)
+                .id(1L)
+                .build();
+        Fragment fragment = Fragment.builder()
+                .id(1L)
+                .project(project)
+                .position(5)
+                .build();
+        MoveFragmentRequest request = new MoveFragmentRequest(1L, 5);
+
+        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+
+        assertThrows(IllegalArgumentException.class, () -> fragmentService.moveFragment(request));
+
+        verifyNoMoreInteractions(fragmentRepository);
+        verifyNoInteractions(projectRepository);
+        verifyNoInteractions(fragmentMapper);
+
+
     }
 }

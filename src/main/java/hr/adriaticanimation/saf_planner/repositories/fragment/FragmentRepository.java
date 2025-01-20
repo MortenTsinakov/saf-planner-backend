@@ -28,4 +28,22 @@ public interface FragmentRepository extends JpaRepository<Fragment, Integer> {
             "SET e.position = e.position + 1 " +
             "WHERE e.project.id = :projectId AND e.position >= :fragmentPosition")
     void shiftFragmentPositionsForward(@Param("projectId") Long projectId, @Param("fragmentPosition") Integer fragmentPosition);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Fragment e " +
+           "SET e.position = e.position - 1 " +
+           "WHERE e.project.id = :projectId AND e.position > :fromPosition AND e.position <= :toPosition")
+    void shiftFragmentPositionsBackward(@Param("projectId") Long projectId,
+                                        @Param("fromPosition") Integer fromPosition,
+                                        @Param("toPosition") Integer toPosition);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Fragment e " +
+           "SET e.position = e.position + 1 " +
+           "WHERE e.project.id = :projectId AND e.position >= :fromPosition AND e.position < :toPosition")
+    void shiftFragmentPositionsForward(@Param("projectId") Long projectId,
+                                       @Param("fromPosition") Integer fromPosition,
+                                       @Param("toPosition") Integer toPosition);
 }

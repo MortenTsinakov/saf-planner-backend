@@ -51,6 +51,15 @@ Content-Type: application/json
 }
 
 ###
+PUT http://localhost:8080/api/fragment/move
+Content-Type: application/json
+
+{
+    "fragmentId": 15,
+    "newPosition": 1
+}
+
+###
 DELETE http://localhost:8080/api/fragment
 Content-Type: application/json
 
