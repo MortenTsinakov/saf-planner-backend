@@ -1,9 +1,11 @@
 package hr.adriaticanimation.saf_planner.services.authentication;
 
+import hr.adriaticanimation.saf_planner.utils.JwtKeyProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,10 @@ import java.util.function.Function;
  * Service for JWT operations.
  */
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${security.jwt.secret-key}")
-    private String secretKey;
+    private final JwtKeyProvider jwtKeyProvider;
 
     @Getter
     @Value("${security.jwt.expiration-time}")
@@ -77,7 +79,6 @@ public class JwtService {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return new SecretKeySpec(keyBytes, "HmacSHA256");
+        return new SecretKeySpec(jwtKeyProvider.getSecretKey(), "HmacSHA256");
     }
 }
