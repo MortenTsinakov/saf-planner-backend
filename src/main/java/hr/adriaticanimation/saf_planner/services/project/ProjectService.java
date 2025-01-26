@@ -3,7 +3,6 @@ package hr.adriaticanimation.saf_planner.services.project;
 import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectResponse;
-import hr.adriaticanimation.saf_planner.dtos.project.ProjectDetailsResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectDescriptionRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectEstimatedLengthRequest;
@@ -96,11 +95,11 @@ public class ProjectService {
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
     }
 
-    public ResponseEntity<ProjectDetailsResponse> getProjectById(Long projectId) {
+    public ResponseEntity<ProjectResponse> getProjectById(Long projectId) {
         User user = authenticationService.getUserFromSecurityContextHolder();
         Project project = projectRepository.getProjectByIdAndOwner(projectId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        ProjectDetailsResponse response = projectMapper.projectToProjectDetailsResponse(project);
+        ProjectResponse response = projectMapper.projectToProjectResponse(project);
         return ResponseEntity.ok(response);
     }
 }

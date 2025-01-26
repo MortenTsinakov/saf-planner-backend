@@ -3,7 +3,6 @@ package hr.adriaticanimation.saf_planner.controllers.project;
 import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectResponse;
-import hr.adriaticanimation.saf_planner.dtos.project.ProjectDetailsResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectDescriptionRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectEstimatedLengthRequest;
@@ -16,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +34,7 @@ public class ProjectController {
 
     @GetMapping
     @Operation(description = "Fetch project with given id")
-    public ResponseEntity<ProjectDetailsResponse> getProjectById(@RequestParam("projectId") Long projectId) {
+    public ResponseEntity<ProjectResponse> getProjectById(@RequestParam("projectId") Long projectId) {
         return projectService.getProjectById(projectId);
     }
 
