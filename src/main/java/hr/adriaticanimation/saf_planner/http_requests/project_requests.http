@@ -1,5 +1,8 @@
 ###
-GET http://localhost:8080/api/project
+GET http://localhost:8080/api/project/all
+
+###
+GET http://localhost:8080/api/project?projectId=14
 
 ###
 POST http://localhost:8080/api/project

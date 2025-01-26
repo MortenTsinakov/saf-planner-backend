@@ -3,6 +3,7 @@ package hr.adriaticanimation.saf_planner.controllers.project;
 import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectResponse;
+import hr.adriaticanimation.saf_planner.dtos.project.ProjectDetailsResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectDescriptionRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectEstimatedLengthRequest;
@@ -15,10 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -32,6 +35,12 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping
+    @Operation(description = "Fetch project with given id")
+    public ResponseEntity<ProjectDetailsResponse> getProjectById(@RequestParam("projectId") Long projectId) {
+        return projectService.getProjectById(projectId);
+    }
+
+    @GetMapping("/all")
     @Operation(description = "Fetch all user projects")
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         return projectService.getAllProjects();
