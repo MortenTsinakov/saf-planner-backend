@@ -29,6 +29,12 @@ public class ProjectService {
     private final ProjectMapper projectMapper;
     private final AuthenticationService authenticationService;
 
+    public ResponseEntity<ProjectResponse> getProjectById(Long projectId) {
+        Project project = getUserProjectById(projectId);
+        ProjectResponse response = projectMapper.projectToProjectResponse(project);
+        return ResponseEntity.ok(response);
+    }
+
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         User user = authenticationService.getUserFromSecurityContextHolder();
         List<Project> projectList = projectRepository.getProjectsByOwnerOrderByUpdatedAtDesc(user);
@@ -93,13 +99,5 @@ public class ProjectService {
         User user = authenticationService.getUserFromSecurityContextHolder();
         return projectRepository.getProjectByIdAndOwner(projectId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-    }
-
-    public ResponseEntity<ProjectResponse> getProjectById(Long projectId) {
-        User user = authenticationService.getUserFromSecurityContextHolder();
-        Project project = projectRepository.getProjectByIdAndOwner(projectId, user)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        ProjectResponse response = projectMapper.projectToProjectResponse(project);
-        return ResponseEntity.ok(response);
     }
 }
