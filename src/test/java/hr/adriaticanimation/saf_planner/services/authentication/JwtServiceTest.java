@@ -2,18 +2,24 @@ package hr.adriaticanimation.saf_planner.services.authentication;
 
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.entities.user.UserRole;
+import hr.adriaticanimation.saf_planner.utils.JwtKeyProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
+
+    @Mock
+    private JwtKeyProvider jwtKeyProvider;
 
     @InjectMocks
     private JwtService jwtService;
@@ -23,7 +29,7 @@ class JwtServiceTest {
     @BeforeEach
     void setup() {
         String jwtSecret = "asdfalsdfaslkdjfbaskdfbasdlkfjabdslfkjsabdlkasbdflaksjdbfalksdjfbaksdjbfaksdjfbaksldb";
-        ReflectionTestUtils.setField(jwtService, "secretKey", jwtSecret);
+        when(jwtKeyProvider.getSecretKey()).thenReturn(jwtSecret.getBytes());
         long expirationTime = 900000;
         ReflectionTestUtils.setField(jwtService, "expirationTime", expirationTime);
 

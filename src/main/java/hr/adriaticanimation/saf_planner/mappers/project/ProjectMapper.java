@@ -15,6 +15,7 @@ public interface ProjectMapper {
 
     @Mapping(target = "owner", expression = "java(String.format(\"%s %s\", project.getOwner().getFirstName(), project.getOwner().getLastName()))")
     ProjectResponse projectToProjectResponse(Project project);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", expression = "java(Timestamp.from(Instant.now()))")
     @Mapping(target = "updatedAt", expression = "java(Timestamp.from(Instant.now()))")

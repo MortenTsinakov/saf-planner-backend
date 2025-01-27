@@ -46,6 +46,40 @@ class ProjectServiceTest {
     private ProjectService projectService;
 
     @Test
+    void testGetProjectByIdSuccess() {
+        Long projectId = 1L;
+        User user = new User();
+        Project project = new Project();
+        ProjectResponse response = new ProjectResponse(null, null, null, null, null, null, null);
+
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(projectRepository.getProjectByIdAndOwner(projectId, user)).thenReturn(Optional.of(project));
+        when(projectMapper.projectToProjectResponse(project)).thenReturn(response);
+
+        ResponseEntity<ProjectResponse> result = projectService.getProjectById(projectId);
+
+        assertTrue(result.getStatusCode().is2xxSuccessful());
+
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(projectRepository).getProjectByIdAndOwner(projectId, user);
+        verify(projectMapper).projectToProjectResponse(project);
+
+    }
+
+    @Test
+    void testGetProjectByIdProjectNotFound() {
+        Long projectId = 1L;
+        User user = new User();
+
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(projectRepository.getProjectByIdAndOwner(projectId, user)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> projectService.getProjectById(projectId));
+
+        verifyNoInteractions(projectMapper);
+    }
+
+    @Test
     void testGetAllProjects() {
         User user = new User();
         Project project = new Project();

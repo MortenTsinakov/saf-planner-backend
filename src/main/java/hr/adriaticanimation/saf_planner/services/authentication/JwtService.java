@@ -3,7 +3,6 @@ package hr.adriaticanimation.saf_planner.services.authentication;
 import hr.adriaticanimation.saf_planner.utils.JwtKeyProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
