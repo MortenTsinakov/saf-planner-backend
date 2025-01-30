@@ -1,0 +1,12 @@
+###
+GET http://localhost:8080/api/label?projectId=7
+
+###
+POST http://localhost:8080/api/label
+Content-Type: application/json
+
+{
+    "projectId": 7,
+    "description": "Test label",
+    "color": "#00d0a1"
+}
