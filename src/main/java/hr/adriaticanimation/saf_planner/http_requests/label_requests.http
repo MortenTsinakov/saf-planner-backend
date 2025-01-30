@@ -10,3 +10,21 @@ Content-Type: application/json
     "description": "Test label",
     "color": "#00d0a1"
 }
+
+###
+PUT http://localhost:8080/api/label/color
+Content-Type: application/json
+
+{
+    "labelId": 1,
+    "color": "#007ed0"
+}
+
+###
+PUT http://localhost:8080/api/label/desription
+Content-Type: application/json
+
+{
+    "labelId": 1,
+    "description": "Turning point"
+}

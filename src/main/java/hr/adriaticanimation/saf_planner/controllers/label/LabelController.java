@@ -2,6 +2,8 @@ package hr.adriaticanimation.saf_planner.controllers.label;
 
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
+import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelColorRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelDescriptionRequest;
 import hr.adriaticanimation.saf_planner.services.label.LabelService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,5 +38,17 @@ public class LabelController {
     @Operation(description = "Create new label for project")
     public ResponseEntity<LabelResponse> createLabel(@Valid @RequestBody CreateLabelRequest request) {
         return labelService.createLabel(request);
+    }
+
+    @PutMapping("/desription")
+    @Operation(description = "Update label description")
+    public ResponseEntity<LabelResponse> updateLabelDescription(@Valid @RequestBody UpdateLabelDescriptionRequest request) {
+        return labelService.updateLabelDescription(request);
+    }
+
+    @PutMapping("/color")
+    @Operation(description = "Update label color")
+    public ResponseEntity<LabelResponse> updateLabelColor(@Valid @RequestBody UpdateLabelColorRequest request) {
+        return labelService.updateLabelColor(request);
     }
 }
