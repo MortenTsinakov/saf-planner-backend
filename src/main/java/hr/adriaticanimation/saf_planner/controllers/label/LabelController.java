@@ -1,7 +1,12 @@
 package hr.adriaticanimation.saf_planner.controllers.label;
 
+import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
+import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelColorRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelDescriptionRequest;
 import hr.adriaticanimation.saf_planner.services.label.LabelService;
@@ -10,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,6 +46,12 @@ public class LabelController {
         return labelService.createLabel(request);
     }
 
+    @PostMapping("/fragment")
+    @Operation(description = "Attach a label to a fragment")
+    public ResponseEntity<LabelResponse> addLabelToFragment(@Valid @RequestBody AttachLabelToFragmentRequest request) {
+        return labelService.attachLabelToFragment(request);
+    }
+
     @PutMapping("/desription")
     @Operation(description = "Update label description")
     public ResponseEntity<LabelResponse> updateLabelDescription(@Valid @RequestBody UpdateLabelDescriptionRequest request) {
@@ -50,5 +62,17 @@ public class LabelController {
     @Operation(description = "Update label color")
     public ResponseEntity<LabelResponse> updateLabelColor(@Valid @RequestBody UpdateLabelColorRequest request) {
         return labelService.updateLabelColor(request);
+    }
+
+    @DeleteMapping
+    @Operation(description = "Delete label")
+    public ResponseEntity<DeleteLabelResponse> deleteLabel(@Valid @RequestBody DeleteLabelRequest request) {
+        return labelService.deleteLabel(request);
+    }
+
+    @DeleteMapping("/fragment")
+    @Operation(description = "Remove label from fragment")
+    public ResponseEntity<RemoveLabelFromFragmentResponse> removeLabelFromFragment(@Valid @RequestBody RemoveLabelFromFragmentRequest request) {
+        return labelService.removeLabelFromFragment(request);
     }
 }

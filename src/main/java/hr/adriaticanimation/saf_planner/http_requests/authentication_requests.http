@@ -3,10 +3,10 @@ POST http://localhost:8080/api/auth/sign-up
 Content-Type: application/json
 
 {
-  "email": "user@4email.com",
-  "firstName": "Daniel",
-  "lastName": "Dorito",
-  "password": "user4Password"
+  "email": "user1@email.com",
+  "firstName": "Mahatma",
+  "lastName": "Gandhi",
+  "password": "user1Password"
 }
 > {% client.global.set("jwt", JSON.parse(JSON.stringify(response.body)).jwt);%}
 

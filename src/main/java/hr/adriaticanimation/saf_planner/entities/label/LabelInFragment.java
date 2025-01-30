@@ -2,15 +2,13 @@ package hr.adriaticanimation.saf_planner.entities.label;
 
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,19 +16,25 @@ import lombok.Setter;
 @Entity
 @Table(name = "labels_in_fragments")
 @Getter @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class LabelInFragment {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public LabelInFragment(Label label, Fragment fragment) {
+        this.id = new LabelInFragmentId(label.getId(), fragment.getId());
+        this.label = label;
+        this.fragment = fragment;
+    }
+
+    @EmbeddedId
     @Column(name = "id", nullable = false)
-    private Long id;
-    @OneToOne
+    private LabelInFragmentId id;
+    @ManyToOne
+    @MapsId("labelId")
     @JoinColumn(name = "label", referencedColumnName = "id")
     private Label label;
-    @OneToOne
+    @ManyToOne
+    @MapsId("fragmentId")
     @JoinColumn(name = "fragment", referencedColumnName = "id")
     private Fragment fragment;
 }

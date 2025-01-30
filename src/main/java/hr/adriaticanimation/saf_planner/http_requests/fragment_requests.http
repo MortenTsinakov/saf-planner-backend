@@ -1,17 +1,17 @@
 ###
-GET http://localhost:8080/api/fragment?projectId=7
+GET http://localhost:8080/api/fragment?projectId=1
 
 ###
 POST http://localhost:8080/api/fragment
 Content-Type: application/json
 
 {
-  "shortDescription": "Fragment to be added at the 2nd position",
-  "longDescription": "",
-  "durationInSeconds": 5,
+  "shortDescription": "Geppetto creates Pinocchio",
+  "longDescription": "Geppetto carves a puppet out of a wooden log. He names it Pinocchio",
+  "durationInSeconds": 15,
   "onTimeline": true,
-  "position": 2,
-  "projectId": 7
+  "position": 1,
+  "projectId": 1
 }
 
 ###

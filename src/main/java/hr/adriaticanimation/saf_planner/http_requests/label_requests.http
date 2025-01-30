@@ -1,14 +1,23 @@
 ###
-GET http://localhost:8080/api/label?projectId=7
+GET http://localhost:8080/api/label?projectId=1
 
 ###
 POST http://localhost:8080/api/label
 Content-Type: application/json
 
 {
-    "projectId": 7,
-    "description": "Test label",
-    "color": "#00d0a1"
+    "projectId": 1,
+    "description": "Test",
+    "color": "#6cd36d"
+}
+
+###
+POST http://localhost:8080/api/label/fragment
+Content-Type: application/json
+
+{
+    "labelId": 4,
+    "fragmentId": 1
 }
 
 ###
@@ -16,8 +25,8 @@ PUT http://localhost:8080/api/label/color
 Content-Type: application/json
 
 {
-    "labelId": 1,
-    "color": "#007ed0"
+    "labelId": 4,
+    "color": "#000000"
 }
 
 ###
@@ -25,6 +34,23 @@ PUT http://localhost:8080/api/label/desription
 Content-Type: application/json
 
 {
-    "labelId": 1,
-    "description": "Turning point"
+    "labelId": 4,
+    "description": "Test label"
+}
+
+###
+DELETE http://localhost:8080/api/label
+Content-Type: application/json
+
+{
+    "labelId": 4
+}
+
+###
+DELETE http://localhost:8080/api/label/fragment
+Content-Type: application/json
+
+{
+    "labelId": 4,
+    "fragmentId": 1
 }
