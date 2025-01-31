@@ -7,8 +7,7 @@ import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentResponse;
-import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelColorRequest;
-import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelDescriptionRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelRequest;
 import hr.adriaticanimation.saf_planner.services.label.LabelService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -52,16 +51,10 @@ public class LabelController {
         return labelService.attachLabelToFragment(request);
     }
 
-    @PutMapping("/desription")
-    @Operation(description = "Update label description")
-    public ResponseEntity<LabelResponse> updateLabelDescription(@Valid @RequestBody UpdateLabelDescriptionRequest request) {
-        return labelService.updateLabelDescription(request);
-    }
-
-    @PutMapping("/color")
-    @Operation(description = "Update label color")
-    public ResponseEntity<LabelResponse> updateLabelColor(@Valid @RequestBody UpdateLabelColorRequest request) {
-        return labelService.updateLabelColor(request);
+    @PutMapping()
+    @Operation(description = "Update label")
+    public ResponseEntity<LabelResponse> updateLabel(@Valid @RequestBody UpdateLabelRequest request) {
+        return labelService.updateLabel(request);
     }
 
     @DeleteMapping

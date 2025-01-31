@@ -76,10 +76,14 @@ class CreateLabelRequestTest {
     }
 
     @Test
-    void testCreateLabelRequestColorIsThreeDigitHexValue() {
+    void testCreateLabelRequestColorIsThreeDigitHexValueFails() {
         CreateLabelRequest request = new CreateLabelRequest(1L, "Description", "#000");
         Set<ConstraintViolation<CreateLabelRequest>> constraintViolations = validator.validate(request);
-        assertTrue(constraintViolations.isEmpty());
+        assertFalse(constraintViolations.isEmpty());
+        assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
+                .getAnnotation()
+                .annotationType()
+                .equals(ValidHexValue.class)));
     }
 
     @Test

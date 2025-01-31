@@ -21,21 +21,13 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/api/label/color
+PUT http://localhost:8080/api/label
 Content-Type: application/json
 
 {
-    "labelId": 4,
-    "color": "#000000"
-}
-
-###
-PUT http://localhost:8080/api/label/desription
-Content-Type: application/json
-
-{
-    "labelId": 4,
-    "description": "Test label"
+    "labelId": 5,
+    "description": "Test label",
+    "color": "#666666"
 }
 
 ###

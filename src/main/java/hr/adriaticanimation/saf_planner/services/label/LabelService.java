@@ -7,8 +7,6 @@ import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentResponse;
-import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelColorRequest;
-import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelDescriptionRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelRequest;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.label.Label;
@@ -81,40 +79,16 @@ public class LabelService {
      * Update label.
      *
      * @param request - request for updating the label
-     * @param updateFunction - function that updates a specific label field
      * @return - updated label
      */
-    public <T extends UpdateLabelRequest> ResponseEntity<LabelResponse> updateLabel(T request, Consumer<Label> updateFunction) {
-        Label label = getLabelById(request.getLabelId());
-        updateFunction.accept(label);
+    public ResponseEntity<LabelResponse> updateLabel(UpdateLabelRequest request) {
+        Label label = getLabelById(request.labelId());
+        label.setDescription(request.description());
+        label.setColor(request.color());
         label = labelRepository.save(label);
 
         LabelResponse response = labelMapper.labelToLabelResponse(label);
         return ResponseEntity.ok(response);
-    }
-
-    /**
-     * Update label description.
-     * Call the general update method with the original request and a consumer that
-     * updates the description field of the label.
-     *
-     * @param request - request to update label
-     * @return - updated label
-     */
-    public ResponseEntity<LabelResponse> updateLabelDescription(UpdateLabelDescriptionRequest request) {
-        return updateLabel(request, label -> label.setDescription(request.getDescription()));
-    }
-
-    /**
-     * Update label color.
-     * Call the general update method with the original request and a consumer that
-     * updates the color field of the label.
-     *
-     * @param request - request to update label
-     * @return - updated label
-     */
-    public ResponseEntity<LabelResponse> updateLabelColor(UpdateLabelColorRequest request) {
-        return updateLabel(request, label -> label.setColor(request.getColor()));
     }
 
     public ResponseEntity<DeleteLabelResponse> deleteLabel(DeleteLabelRequest request) {

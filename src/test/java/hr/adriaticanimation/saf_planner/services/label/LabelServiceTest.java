@@ -7,8 +7,7 @@ import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentResponse;
-import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelColorRequest;
-import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelDescriptionRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelRequest;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.label.Label;
 import hr.adriaticanimation.saf_planner.entities.label.LabelInFragmentId;
@@ -102,11 +101,11 @@ class LabelServiceTest {
 
     @Test
     void testUpdateLabelDescriptionSuccess() {
-        UpdateLabelDescriptionRequest request = new UpdateLabelDescriptionRequest();
+        UpdateLabelRequest request = new UpdateLabelRequest(
+                1L, "Description", "#000000"
+        );
         User user = User.builder().id(1L).build();
         Project project = Project.builder().id(1L).owner(user).build();
-        request.setDescription("Description");
-        request.setLabelId(1L);
         Label label = Label.builder()
                 .id(1L)
                 .project(project)
@@ -116,27 +115,27 @@ class LabelServiceTest {
         LabelResponse lr = new LabelResponse(1L, "Description", "#111111");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.getLabelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
         when(labelRepository.save(label)).thenReturn(label);
         when(labelMapper.labelToLabelResponse(label)).thenReturn(lr);
 
-        ResponseEntity<LabelResponse> response = labelService.updateLabelDescription(request);
+        ResponseEntity<LabelResponse> response = labelService.updateLabel(request);
 
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertEquals("Description", label.getDescription());
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.getLabelId());
+        verify(labelRepository).getLabelById(request.labelId());
         verify(labelRepository).save(label);
         verify(labelMapper).labelToLabelResponse(label);
     }
 
     @Test
     void testUpdateLabelColorSuccess() {
-        UpdateLabelColorRequest request = new UpdateLabelColorRequest();
+        UpdateLabelRequest request = new UpdateLabelRequest(
+                1L, "Description", "#111111"
+        );
         User user = User.builder().id(1L).build();
         Project project = Project.builder().id(1L).owner(user).build();
-        request.setColor("#111111");
-        request.setLabelId(1L);
         Label label = Label.builder()
                 .id(1L)
                 .project(project)
@@ -146,94 +145,51 @@ class LabelServiceTest {
         LabelResponse lr = new LabelResponse(1L, "Description", "#111111");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.getLabelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
         when(labelRepository.save(label)).thenReturn(label);
         when(labelMapper.labelToLabelResponse(label)).thenReturn(lr);
 
-        ResponseEntity<LabelResponse> response = labelService.updateLabelColor(request);
+        ResponseEntity<LabelResponse> response = labelService.updateLabel(request);
 
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertEquals("#111111", label.getColor());
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.getLabelId());
+        verify(labelRepository).getLabelById(request.labelId());
         verify(labelRepository).save(label);
         verify(labelMapper).labelToLabelResponse(label);
     }
 
     @Test
-    void testUpdateLabelDescriptionLabelNotFound() {
+    void testUpdateLabelNotFound() {
         User user = new User();
-        UpdateLabelDescriptionRequest request = new UpdateLabelDescriptionRequest();
-        request.setDescription("Description");
-        request.setLabelId(1L);
+        UpdateLabelRequest request = new UpdateLabelRequest(1L, "Description", "#000000");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.getLabelId())).thenReturn(Optional.empty());
+        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabelDescription(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabel(request));
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.getLabelId());
+        verify(labelRepository).getLabelById(request.labelId());
         verifyNoMoreInteractions(labelRepository);
         verifyNoInteractions(labelMapper);
     }
 
     @Test
-    void testUpdateLabelColorLabelNotFound() {
-        User user = new User();
-        UpdateLabelColorRequest request = new UpdateLabelColorRequest();
-        request.setColor("#111111");
-        request.setLabelId(1L);
-
-        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.getLabelId())).thenReturn(Optional.empty());
-
-        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabelColor(request));
-
-        verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.getLabelId());
-        verifyNoMoreInteractions(labelRepository);
-        verifyNoInteractions(labelMapper);
-    }
-
-    @Test
-    void testUpdateLabelDescriptionProjectNotOwnedByUser() {
+    void testUpdateLabelProjectNotOwnedByUser() {
         User user = User.builder().id(1L).build();
         User user2 = User.builder().id(2L).build();
         Project project = Project.builder().id(1L).owner(user2).build();
         Label label = Label.builder().project(project).build();
-        UpdateLabelDescriptionRequest request = new UpdateLabelDescriptionRequest();
-        request.setDescription("Description");
-        request.setLabelId(1L);
+        UpdateLabelRequest request = new UpdateLabelRequest(1L, "Description", "#000000");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.getLabelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabelDescription(request));
-
-        verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.getLabelId());
-        verifyNoMoreInteractions(labelRepository);
-        verifyNoInteractions(labelMapper);
-    }
-
-    @Test
-    void testUpdateLabelColorProjectNotOwnedByUser() {
-        User user = User.builder().id(1L).build();
-        User user2 = User.builder().id(2L).build();
-        Project project = Project.builder().id(1L).owner(user2).build();
-        Label label = Label.builder().project(project).build();
-        UpdateLabelColorRequest request = new UpdateLabelColorRequest();
-        request.setColor("#111111");
-        request.setLabelId(1L);
-
-        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.getLabelId())).thenReturn(Optional.of(label));
-
-        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabelColor(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabel(request));
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.getLabelId());
+        verify(labelRepository).getLabelById(request.labelId());
         verifyNoMoreInteractions(labelRepository);
         verifyNoInteractions(labelMapper);
     }
