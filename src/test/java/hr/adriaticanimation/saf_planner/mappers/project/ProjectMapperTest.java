@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.mappers.project;
 
 import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
+import hr.adriaticanimation.saf_planner.entities.label.Label;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;

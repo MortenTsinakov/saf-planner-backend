@@ -1,6 +1,9 @@
 package hr.adriaticanimation.saf_planner.dtos.project;
 
+import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
+
 import java.sql.Timestamp;
+import java.util.List;
 
 public record ProjectResponse(
         Long id,
@@ -9,5 +12,6 @@ public record ProjectResponse(
         Integer estimatedLengthInSeconds,
         Timestamp createdAt,
         Timestamp updatedAt,
-        String owner
+        String owner,
+        List<LabelResponse> labels
 ) {}
