@@ -95,7 +95,7 @@ public class ProjectService {
         return ResponseEntity.ok(response);
     }
 
-    private Project getUserProjectById(Long projectId) {
+    public Project getUserProjectById(Long projectId) {
         User user = authenticationService.getUserFromSecurityContextHolder();
         return projectRepository.getProjectByIdAndOwner(projectId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));

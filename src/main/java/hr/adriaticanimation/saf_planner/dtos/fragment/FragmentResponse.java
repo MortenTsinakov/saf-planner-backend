@@ -1,5 +1,9 @@
 package hr.adriaticanimation.saf_planner.dtos.fragment;
 
+import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
+
+import java.util.List;
+
 public record FragmentResponse(
         Long id,
         String shortDescription,
@@ -7,5 +11,6 @@ public record FragmentResponse(
         Integer durationInSeconds,
         boolean onTimeline,
         Integer position,
-        Long projectId
+        Long projectId,
+        List<LabelResponse> labels
 ) {}

@@ -9,9 +9,9 @@ POST http://localhost:8080/api/project
 Content-Type: application/json
 
 {
-    "title": "My second project",
-    "description": "This is a project made for testing out the server implementation - mostly for ordering",
-    "estimatedLengthInSeconds": 360
+    "title": "Pinocchio",
+    "description": "Very famous story about a wooden puppet.",
+    "estimatedLengthInSeconds": 600
 }
 
 ###
