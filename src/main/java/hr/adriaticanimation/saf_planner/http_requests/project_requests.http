@@ -2,16 +2,16 @@
 GET http://localhost:8080/api/project/all
 
 ###
-GET http://localhost:8080/api/project?projectId=14
+GET http://localhost:8080/api/project?projectId=3
 
 ###
 POST http://localhost:8080/api/project
 Content-Type: application/json
 
 {
-    "title": "Pinocchio",
-    "description": "Very famous story about a wooden puppet.",
-    "estimatedLengthInSeconds": 600
+    "title": "Test project",
+    "description": "Test project for user 2",
+    "estimatedLengthInSeconds": 300
 }
 
 ###
