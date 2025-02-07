@@ -1,6 +1,7 @@
 package hr.adriaticanimation.saf_planner.services.label;
 
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelToFragmentRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelsToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -425,4 +427,178 @@ class LabelServiceTest {
         verifyNoInteractions(labelInFragmentRepository);
     }
 
+    @Test
+    void testAttachLabelsToFragmentSuccess() {
+        List<Long> labelIds = List.of(1L, 2L, 3L);
+        Long fragmentId = 1L;
+        AttachLabelsToFragmentRequest request = new AttachLabelsToFragmentRequest(labelIds, fragmentId);
+
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Project project = Project.builder()
+                .id(1L)
+                .owner(user)
+                .build();
+        Fragment fragment = Fragment.builder()
+                .id(1L)
+                .project(project)
+                .build();
+        Label l1 = Label.builder()
+                .id(1L)
+                .project(project)
+                .build();
+        Label l2 = Label.builder()
+                .id(1L)
+                .project(project)
+                .build();
+        Label l3 = Label.builder()
+                .id(1L)
+                .project(project)
+                .build();
+
+        when(labelRepository.findLabelsByIdIsIn(labelIds)).thenReturn(List.of(l1, l2, l3));
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
+
+        ResponseEntity<List<LabelResponse>> response = labelService.attachLabelsToFragment(request);
+
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+        verify(labelRepository).findLabelsByIdIsIn(labelIds);
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(fragmentRepository).getFragmentById(fragmentId);
+        verify(labelInFragmentRepository).saveAll(any());
+        verify(labelInFragmentRepository).saveAll(anyList());
+        verify(labelMapper).labelsToLabelResponses(anyList());
+    }
+
+    @Test
+    void testAttachLabelsToFragmentLabelsIsEmptyInRequest() {
+        AttachLabelsToFragmentRequest request = new AttachLabelsToFragmentRequest(List.of(), 1L);
+        ResponseEntity<List<LabelResponse>> response = labelService.attachLabelsToFragment(request);
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+
+        verify(labelRepository).findLabelsByIdIsIn(List.of());
+        verifyNoInteractions(authenticationService);
+        verifyNoInteractions(fragmentRepository);
+        verifyNoInteractions(labelInFragmentRepository);
+        verifyNoInteractions(labelMapper);
+    }
+
+    @Test
+    void testAttachLabelsToFragmentLabelsIsEmptyAfterDatabaseQuery() {
+        List<Long> labelIds = List.of(1L, 2L, 3L);
+        Long fragmentId = 1L;
+        AttachLabelsToFragmentRequest request = new AttachLabelsToFragmentRequest(labelIds, fragmentId);
+
+        ResponseEntity<List<LabelResponse>> response = labelService.attachLabelsToFragment(request);
+        assertTrue(response.getStatusCode().is2xxSuccessful());
+
+        verify(labelRepository).findLabelsByIdIsIn(labelIds);
+        verifyNoInteractions(authenticationService);
+        verifyNoInteractions(fragmentRepository);
+        verifyNoInteractions(labelInFragmentRepository);
+        verifyNoInteractions(labelMapper);
+    }
+
+    @Test
+    void testAttachLabelsToFragmentFragmentNotFound() {
+        List<Long> labelIds = List.of(1L, 2L, 3L);
+        User user = User.builder().id(1L).build();
+        Long fragmentId = 1L;
+        Label l1 = Label.builder()
+                .id(1L)
+                .build();
+        AttachLabelsToFragmentRequest request = new AttachLabelsToFragmentRequest(labelIds, fragmentId);
+
+        when(labelRepository.findLabelsByIdIsIn(labelIds)).thenReturn(List.of(l1));
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> labelService.attachLabelsToFragment(request));
+
+        verify(labelRepository).findLabelsByIdIsIn(labelIds);
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(fragmentRepository).getFragmentById(fragmentId);
+        verifyNoInteractions(labelInFragmentRepository);
+        verifyNoInteractions(labelMapper);
+    }
+
+    @Test
+    void testAttachLabelsToFragmentFragmentNotOwnedByUser() {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        User user2 = User.builder().id(2L).build();
+        Project project = Project.builder()
+                .id(1L)
+                .owner(user2)
+                .build();
+        Fragment fragment = Fragment.builder()
+                .id(1L)
+                .project(project)
+                .build();
+        Label l1 = Label.builder()
+                .id(1L)
+                .project(project)
+                .build();
+        AttachLabelsToFragmentRequest request = new AttachLabelsToFragmentRequest(List.of(1L, 2L), 1L);
+        List<Label> labels = List.of(l1);
+
+        when(labelRepository.findLabelsByIdIsIn(List.of(1L, 2L))).thenReturn(labels);
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(fragmentRepository.getFragmentById(1L)).thenReturn(Optional.of(fragment));
+
+        assertThrows(ResourceNotFoundException.class, () -> labelService.attachLabelsToFragment(request));
+
+        verify(labelRepository).findLabelsByIdIsIn(List.of(1L, 2L));
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(fragmentRepository).getFragmentById(1L);
+        verifyNoInteractions(labelInFragmentRepository);
+        verifyNoInteractions(labelMapper);
+    }
+
+    @Test
+    void testAttachLabelsToFragmentLabelNotInProject() {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Project project = Project.builder()
+                .id(1L)
+                .owner(user)
+                .build();
+        Project project2 = Project.builder()
+                .id(2L)
+                .owner(user)
+                .build();
+        Fragment fragment = Fragment.builder()
+                .id(1L)
+                .project(project)
+                .build();
+        Label l1 = Label.builder()
+                .id(1L)
+                .project(project)
+                .build();
+        Label l2 = Label.builder()
+                .id(2L)
+                .project(project2)
+                .build();
+
+        List<Long> labelIds = List.of(1L, 2L);
+        Long fragmentId = 1L;
+        AttachLabelsToFragmentRequest request = new AttachLabelsToFragmentRequest(labelIds, fragmentId);
+        List<Label> labels = List.of(l1, l2);
+
+        when(labelRepository.findLabelsByIdIsIn(labelIds)).thenReturn(labels);
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
+
+        assertThrows(ResourceNotFoundException.class, () -> labelService.attachLabelsToFragment(request));
+
+        verify(labelRepository).findLabelsByIdIsIn(labelIds);
+        verify(authenticationService).getUserFromSecurityContextHolder();
+        verify(fragmentRepository).getFragmentById(fragmentId);
+        verifyNoInteractions(labelInFragmentRepository);
+        verifyNoInteractions(labelMapper);
+    }
 }

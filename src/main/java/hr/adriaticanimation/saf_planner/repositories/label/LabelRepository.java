@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface LabelRepository extends JpaRepository<Label, Long> {
     List<Label> findAllByProject(Project project);
     Optional<Label> getLabelById(Long id);
+    List<Label> findLabelsByIdIsIn(List<Long> ids);
 }

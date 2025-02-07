@@ -1,6 +1,7 @@
 package hr.adriaticanimation.saf_planner.services.label;
 
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelToFragmentRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelsToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Service for label operations
@@ -134,6 +136,11 @@ public class LabelService {
         return fragment;
     }
 
+    /**
+     * Attach a single label to a fragment.
+     * @param request - request to attach a label to fragment
+     * @return - Label that was attached to the fragment
+     */
     @Transactional
     public ResponseEntity<LabelResponse> attachLabelToFragment(AttachLabelToFragmentRequest request) {
         Label label = getLabelById(request.labelId());
@@ -146,6 +153,39 @@ public class LabelService {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Attach several labels to a fragment.
+     * @param request - request to attach labels
+     * @return - list of labels that were attached to the fragment
+     */
+    @Transactional
+    public ResponseEntity<List<LabelResponse>> attachLabelsToFragment(AttachLabelsToFragmentRequest request) {
+        List<Label> labels = labelRepository.findLabelsByIdIsIn(request.labelIds());
+        if (labels.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+        Fragment fragment = getFragmentById(request.fragmentId());
+
+        if (!labels.stream().allMatch(label -> label.getProject().getId().equals(fragment.getProject().getId()))) {
+            throw new ResourceNotFoundException("Project doesn't have requested labels");
+        }
+
+        List<LabelInFragment> labelInFragmentList = labels
+                .stream()
+                .map(label -> new LabelInFragment(label, fragment))
+                .toList();
+
+        labelInFragmentRepository.saveAll(labelInFragmentList);
+        List<LabelResponse> response = labelMapper.labelsToLabelResponses(labels);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Remove a label from a fragment
+     * @param request - request to remove a label from fragment
+     * @return - message indicating successful removal
+     */
     @Transactional
     public ResponseEntity<RemoveLabelFromFragmentResponse> removeLabelFromFragment(RemoveLabelFromFragmentRequest request) {
         Label label = getLabelById(request.labelId());

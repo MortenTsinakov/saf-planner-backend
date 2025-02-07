@@ -1,6 +1,7 @@
 package hr.adriaticanimation.saf_planner.controllers.label;
 
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelToFragmentRequest;
+import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelsToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
@@ -49,6 +50,12 @@ public class LabelController {
     @Operation(description = "Attach a label to a fragment")
     public ResponseEntity<LabelResponse> addLabelToFragment(@Valid @RequestBody AttachLabelToFragmentRequest request) {
         return labelService.attachLabelToFragment(request);
+    }
+
+    @PostMapping("/fragment/all")
+    @Operation(description = "Attach several labels to a fragment")
+    public ResponseEntity<List<LabelResponse>> addLabelToFragmentAll(@Valid @RequestBody AttachLabelsToFragmentRequest request) {
+        return labelService.attachLabelsToFragment(request);
     }
 
     @PutMapping()

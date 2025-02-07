@@ -21,6 +21,15 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:8080/api/label/fragment/all
+Content-Type: application/json
+
+{
+    "labelIds": [20, 21, 34],
+    "fragmentId": 58
+}
+
+###
 PUT http://localhost:8080/api/label
 Content-Type: application/json
 
