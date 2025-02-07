@@ -161,6 +161,9 @@ public class LabelService {
     @Transactional
     public ResponseEntity<List<LabelResponse>> attachLabelsToFragment(AttachLabelsToFragmentRequest request) {
         List<Label> labels = labelRepository.findLabelsByIdIsIn(request.labelIds());
+        if (labels.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
         Fragment fragment = getFragmentById(request.fragmentId());
 
         if (!labels.stream().allMatch(label -> label.getProject().getId().equals(fragment.getProject().getId()))) {
