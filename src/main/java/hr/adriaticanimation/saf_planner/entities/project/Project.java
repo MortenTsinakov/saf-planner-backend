@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.entities.project;
 
 import hr.adriaticanimation.saf_planner.entities.label.Label;
 import hr.adriaticanimation.saf_planner.entities.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -47,7 +48,7 @@ public class Project {
     @JoinColumn(name = "owner", referencedColumnName = "id")
     private User owner;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER)
-    List<Label> labels;
+    @OneToMany(mappedBy = "project", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Label> labels;
 
 }

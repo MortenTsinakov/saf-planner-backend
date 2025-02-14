@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.entities.fragment;
 
 import hr.adriaticanimation.saf_planner.entities.label.LabelInFragment;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,9 +44,9 @@ public class Fragment {
     @Column(name = "position")
     private int position;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project", referencedColumnName = "id")
+    @JoinColumn(name = "project", referencedColumnName = "id", nullable = false)
     private Project project;
 
-    @OneToMany(mappedBy = "fragment")
+    @OneToMany(mappedBy = "fragment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LabelInFragment> labelInFragmentList;
 }
