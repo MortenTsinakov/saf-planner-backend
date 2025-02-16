@@ -1,6 +1,6 @@
 package hr.adriaticanimation.saf_planner.dtos.fragment;
 
-import jakarta.validation.constraints.Min;
+import hr.adriaticanimation.saf_planner.utils.validators.OptionalInterval;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Optional;
@@ -11,9 +11,11 @@ public record UpdateFragmentRequest (
         @NotNull
         Optional<String> longDescription,
         @NotNull
-        Optional<@Min(value = 1, message = "Fragment's duration has to be at least 1 second") Integer> durationInSeconds,
+        @OptionalInterval(min = 1, max = 3600, message = "Fragment duration has to be >= 1 and <= 3600 seconds")
+        Optional<Integer> durationInSeconds,
         @NotNull
         Optional<Boolean> onTimeline,
         @NotNull
-        Optional<@Min(value = 1, message = "New position has to be greater than 0") Integer> position
+        @OptionalInterval(min = 1, message = "Fragment position has to be greater than 0")
+        Optional<Integer> position
 ) {}

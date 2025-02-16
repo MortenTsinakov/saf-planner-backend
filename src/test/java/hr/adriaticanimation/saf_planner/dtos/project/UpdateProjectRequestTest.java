@@ -1,5 +1,8 @@
 package hr.adriaticanimation.saf_planner.dtos.project;
 
+import hr.adriaticanimation.saf_planner.utils.validators.OptionalInterval;
+import hr.adriaticanimation.saf_planner.utils.validators.OptionalLength;
+import hr.adriaticanimation.saf_planner.utils.validators.OptionalNotBlank;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -52,7 +55,7 @@ class UpdateProjectRequestTest {
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
                 .annotationType()
-                .equals(NotBlank.class)));
+                .equals(OptionalNotBlank.class)));
     }
 
     @Test
@@ -68,7 +71,7 @@ class UpdateProjectRequestTest {
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
                 .annotationType()
-                .equals(NotBlank.class)));
+                .equals(OptionalNotBlank.class)));
     }
 
     @Test
@@ -89,7 +92,7 @@ class UpdateProjectRequestTest {
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
                 .annotationType()
-                .equals(Length.class)));
+                .equals(OptionalLength.class)));
     }
 
     @Test
@@ -105,7 +108,7 @@ class UpdateProjectRequestTest {
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
                 .annotationType()
-                .equals(Min.class)
+                .equals(OptionalInterval.class)
         ));
     }
 }

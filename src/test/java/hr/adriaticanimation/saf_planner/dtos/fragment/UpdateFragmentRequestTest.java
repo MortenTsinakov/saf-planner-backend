@@ -1,5 +1,6 @@
 package hr.adriaticanimation.saf_planner.dtos.fragment;
 
+import hr.adriaticanimation.saf_planner.utils.validators.OptionalInterval;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -143,7 +144,7 @@ class UpdateFragmentRequestTest {
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
                 .annotationType()
-                .equals(Min.class)));
+                .equals(OptionalInterval.class)));
     }
 
     @Test
@@ -161,6 +162,6 @@ class UpdateFragmentRequestTest {
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
                 .annotationType()
-                .equals(Min.class)));
+                .equals(OptionalInterval.class)));
     }
 }

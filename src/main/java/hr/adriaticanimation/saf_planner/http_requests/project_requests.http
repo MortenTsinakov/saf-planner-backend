@@ -27,7 +27,7 @@ PATCH http://localhost:8080/api/projects?id=4
 Content-Type: application/json
 
 {
-    "description": "Description for Blaa"
+    "description": "Description 3   .0"
 }
 
 ###
@@ -39,5 +39,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/api/projects?id=9
+DELETE http://localhost:8080/api/projects?id=11
 Content-Type: application/json
