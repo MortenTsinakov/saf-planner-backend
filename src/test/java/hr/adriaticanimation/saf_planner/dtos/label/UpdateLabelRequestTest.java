@@ -5,7 +5,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,28 +27,17 @@ class UpdateLabelRequestTest {
 
     @Test
     void testUpdateLabelRequestValid() {
-        UpdateLabelRequest request = new UpdateLabelRequest(1L, "Description", "#000000");
+        UpdateLabelRequest request = new UpdateLabelRequest(
+                "Description",
+                "#000000");
         Set<ConstraintViolation<UpdateLabelRequest>> constraintViolations = validator.validate(request);
 
         assertTrue(constraintViolations.isEmpty());
     }
 
     @Test
-    void testUpdateLabelRequestLabelIdIsNull() {
-        UpdateLabelRequest request = new UpdateLabelRequest(null, "Description", "#000000");
-        Set<ConstraintViolation<UpdateLabelRequest>> constraintViolations = validator.validate(request);
-
-        assertFalse(constraintViolations.isEmpty());
-        assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
-                .getAnnotation()
-                .annotationType()
-                .equals(NotNull.class))
-        );
-    }
-
-    @Test
     void testUpdateLabelRequestDescriptionIsTooLong() {
-        UpdateLabelRequest request = new UpdateLabelRequest(-1L, "description description description description description description", "#000000");
+        UpdateLabelRequest request = new UpdateLabelRequest("description description description description description description", "#000000");
         Set<ConstraintViolation<UpdateLabelRequest>> constraintViolations = validator.validate(request);
 
         assertFalse(constraintViolations.isEmpty());
@@ -62,7 +50,7 @@ class UpdateLabelRequestTest {
 
     @Test
     void testUpdateLabelRequestColorIsNull() {
-        UpdateLabelRequest request = new UpdateLabelRequest(-1L, "Description", null);
+        UpdateLabelRequest request = new UpdateLabelRequest("Description", null);
         Set<ConstraintViolation<UpdateLabelRequest>> constraintViolations = validator.validate(request);
 
         assertFalse(constraintViolations.isEmpty());
@@ -75,7 +63,7 @@ class UpdateLabelRequestTest {
 
     @Test
     void testUpdateLabelColorRequestInvalidHexValue() {
-        UpdateLabelRequest request = new UpdateLabelRequest(-1L, "Description", "#03fg1m");
+        UpdateLabelRequest request = new UpdateLabelRequest( "Description", "#03fg1m");
         Set<ConstraintViolation<UpdateLabelRequest>> constraintViolations = validator.validate(request);
 
         assertFalse(constraintViolations.isEmpty());

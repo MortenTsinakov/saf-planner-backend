@@ -3,10 +3,8 @@ package hr.adriaticanimation.saf_planner.controllers.label;
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelsToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
-import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
-import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelRequest;
 import hr.adriaticanimation.saf_planner.services.label.LabelService;
@@ -28,51 +26,51 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/api/label")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class LabelController {
 
     private final LabelService labelService;
 
-    @GetMapping
+    @GetMapping("/labels")
     @Operation(description = "Fetch all labels for project with given id")
     public ResponseEntity<List<LabelResponse>> getAllLabelsForProject(@RequestParam("projectId") Long projectId) {
         return labelService.getAllLabelsForProject(projectId);
     }
 
-    @PostMapping
+    @PostMapping("/label")
     @Operation(description = "Create new label for project")
     public ResponseEntity<LabelResponse> createLabel(@Valid @RequestBody CreateLabelRequest request) {
         return labelService.createLabel(request);
     }
 
-    @PostMapping("/fragment")
+    @PostMapping("/fragment/label")
     @Operation(description = "Attach a label to a fragment")
     public ResponseEntity<LabelResponse> addLabelToFragment(@Valid @RequestBody AttachLabelToFragmentRequest request) {
         return labelService.attachLabelToFragment(request);
     }
 
-    @PostMapping("/fragment/all")
+    @PostMapping("/fragment/labels")
     @Operation(description = "Attach several labels to a fragment")
     public ResponseEntity<List<LabelResponse>> addLabelToFragmentAll(@Valid @RequestBody AttachLabelsToFragmentRequest request) {
         return labelService.attachLabelsToFragment(request);
     }
 
-    @PutMapping()
+    @PutMapping(value = "/label", params = "id")
     @Operation(description = "Update label")
-    public ResponseEntity<LabelResponse> updateLabel(@Valid @RequestBody UpdateLabelRequest request) {
-        return labelService.updateLabel(request);
+    public ResponseEntity<LabelResponse> updateLabel(@RequestParam("id") Long id, @Valid @RequestBody UpdateLabelRequest request) {
+        return labelService.updateLabel(id, request);
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "label", params = "id")
     @Operation(description = "Delete label")
-    public ResponseEntity<DeleteLabelResponse> deleteLabel(@Valid @RequestBody DeleteLabelRequest request) {
-        return labelService.deleteLabel(request);
+    public ResponseEntity<DeleteLabelResponse> deleteLabel(@RequestParam("id") Long id) {
+        return labelService.deleteLabel(id);
     }
 
-    @DeleteMapping("/fragment")
+    @DeleteMapping(value = "/fragment/label", params = {"labelId", "fragmentId"})
     @Operation(description = "Remove label from fragment")
-    public ResponseEntity<RemoveLabelFromFragmentResponse> removeLabelFromFragment(@Valid @RequestBody RemoveLabelFromFragmentRequest request) {
-        return labelService.removeLabelFromFragment(request);
+    public ResponseEntity<RemoveLabelFromFragmentResponse> removeLabelFromFragment(@RequestParam("labelId") Long labelId, @RequestParam("fragmentId") Long fragmentId) {
+        return labelService.removeLabelFromFragment(labelId, fragmentId);
     }
 }

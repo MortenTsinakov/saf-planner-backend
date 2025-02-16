@@ -3,10 +3,8 @@ package hr.adriaticanimation.saf_planner.services.label;
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelsToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
-import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
-import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelRequest;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
@@ -28,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,8 +102,9 @@ class LabelServiceTest {
 
     @Test
     void testUpdateLabelDescriptionSuccess() {
+        Long labelId = 1L;
         UpdateLabelRequest request = new UpdateLabelRequest(
-                1L, "Description", "#000000"
+                "Description", "#000000"
         );
         User user = User.builder().id(1L).build();
         Project project = Project.builder().id(1L).owner(user).build();
@@ -117,24 +117,25 @@ class LabelServiceTest {
         LabelResponse lr = new LabelResponse(1L, "Description", "#111111");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
         when(labelRepository.save(label)).thenReturn(label);
         when(labelMapper.labelToLabelResponse(label)).thenReturn(lr);
 
-        ResponseEntity<LabelResponse> response = labelService.updateLabel(request);
+        ResponseEntity<LabelResponse> response = labelService.updateLabel(labelId, request);
 
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertEquals("Description", label.getDescription());
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
         verify(labelRepository).save(label);
         verify(labelMapper).labelToLabelResponse(label);
     }
 
     @Test
     void testUpdateLabelColorSuccess() {
+        Long labelId = 1L;
         UpdateLabelRequest request = new UpdateLabelRequest(
-                1L, "Description", "#111111"
+                "Description", "#111111"
         );
         User user = User.builder().id(1L).build();
         Project project = Project.builder().id(1L).owner(user).build();
@@ -147,16 +148,16 @@ class LabelServiceTest {
         LabelResponse lr = new LabelResponse(1L, "Description", "#111111");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
         when(labelRepository.save(label)).thenReturn(label);
         when(labelMapper.labelToLabelResponse(label)).thenReturn(lr);
 
-        ResponseEntity<LabelResponse> response = labelService.updateLabel(request);
+        ResponseEntity<LabelResponse> response = labelService.updateLabel(labelId, request);
 
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertEquals("#111111", label.getColor());
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
         verify(labelRepository).save(label);
         verify(labelMapper).labelToLabelResponse(label);
     }
@@ -164,68 +165,73 @@ class LabelServiceTest {
     @Test
     void testUpdateLabelNotFound() {
         User user = new User();
-        UpdateLabelRequest request = new UpdateLabelRequest(1L, "Description", "#000000");
+        Long labelId = 1L;
+        UpdateLabelRequest request = new UpdateLabelRequest( "Description", "#000000");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.empty());
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabel(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabel(labelId, request));
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
         verifyNoMoreInteractions(labelRepository);
         verifyNoInteractions(labelMapper);
     }
 
     @Test
     void testUpdateLabelProjectNotOwnedByUser() {
+        Long labelId = 1L;
         User user = User.builder().id(1L).build();
         User user2 = User.builder().id(2L).build();
         Project project = Project.builder().id(1L).owner(user2).build();
         Label label = Label.builder().project(project).build();
-        UpdateLabelRequest request = new UpdateLabelRequest(1L, "Description", "#000000");
+        UpdateLabelRequest request = new UpdateLabelRequest( "Description", "#000000");
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabel(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.updateLabel(labelId, request));
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
         verifyNoMoreInteractions(labelRepository);
         verifyNoInteractions(labelMapper);
     }
 
     @Test
     void testDeleteLabelSuccess() {
+        Long labelId = 1L;
         User user = User.builder().id(1L).build();
         Project project = Project.builder().id(1L).owner(user).build();
         Label label = Label.builder().id(1L).project(project).build();
-
-        DeleteLabelRequest request = new DeleteLabelRequest(1L);
+        List<Label> labelList = new ArrayList<>();
+        labelList.add(label);
+        project.setLabels(labelList);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
 
-        ResponseEntity<DeleteLabelResponse> response = labelService.deleteLabel(request);
+        ResponseEntity<DeleteLabelResponse> response = labelService.deleteLabel(labelId);
 
         assertTrue(response.getStatusCode().is2xxSuccessful());
+        assertTrue(project.getLabels().isEmpty());
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
-        verify(labelRepository).deleteById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
+        verify(labelRepository).deleteById(labelId);
     }
 
     @Test
     void testDeleteLabelNotFound() {
+        Long labelId = 1L;
         User user = User.builder().id(1L).build();
-        DeleteLabelRequest request = new DeleteLabelRequest(1L);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.empty());
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.deleteLabel(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.deleteLabel(labelId));
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
         verifyNoMoreInteractions(labelRepository);
     }
 
@@ -335,7 +341,8 @@ class LabelServiceTest {
 
     @Test
     void testRemoveLabelFromFragmentSuccess() {
-        RemoveLabelFromFragmentRequest request = new RemoveLabelFromFragmentRequest(1L, 1L);
+        Long labelId = 1L;
+        Long fragmentId = 1L;
         User user = User.builder().id(1L).build();
         Project project = Project.builder().id(1L).owner(user).build();
         Label label = Label.builder().id(1L).project(project).build();
@@ -343,54 +350,57 @@ class LabelServiceTest {
         LabelInFragmentId labelInFragmentId = new LabelInFragmentId(label.getId(), fragment.getId());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
 
-        ResponseEntity<RemoveLabelFromFragmentResponse> response = labelService.removeLabelFromFragment(request);
+        ResponseEntity<RemoveLabelFromFragmentResponse> response = labelService.removeLabelFromFragment(labelId, fragmentId);
 
         assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        verify(labelRepository).getLabelById(request.labelId());
-        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(labelRepository).getLabelById(labelId);
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(labelInFragmentRepository).deleteById(labelInFragmentId);
     }
 
     @Test
     void testRemoveLabelFromFragmentLabelNotFound() {
+        Long labelId = 1L;
+        Long fragmentId = 1L;
         User user = User.builder().id(1L).build();
-        RemoveLabelFromFragmentRequest request = new RemoveLabelFromFragmentRequest(1L, 1L);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.empty());
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(labelId, fragmentId));
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
         verifyNoInteractions(labelInFragmentRepository);
     }
 
     @Test
     void testRemoveLabelFromFragmentFragmentNotFound() {
-        RemoveLabelFromFragmentRequest request = new RemoveLabelFromFragmentRequest(1L, 1L);
+        Long labelId = 1L;
+        Long fragmentId = 1L;
         User user = User.builder().id(1L).build();
         Project project = Project.builder().id(1L).owner(user).build();
         Label label = Label.builder().id(1L).project(project).build();
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.empty());
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(labelId, fragmentId));
 
-        verify(labelRepository).getLabelById(request.labelId());
-        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(labelRepository).getLabelById(labelId);
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verifyNoInteractions(labelInFragmentRepository);
     }
 
     @Test
     void testRemoveLabelFromFragmentProjectNotOwnedByUserFragmentCheck() {
-        RemoveLabelFromFragmentRequest request = new RemoveLabelFromFragmentRequest(1L, 1L);
+        Long labelId = 1L;
+        Long fragmentId = 1L;
         User user = User.builder().id(1L).build();
         User user2 = User.builder().id(2L).build();
         Project project = Project.builder().id(1L).owner(user).build();
@@ -399,31 +409,32 @@ class LabelServiceTest {
         Fragment fragment = Fragment.builder().id(1L).project(project2).build();
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(labelId, fragmentId));
 
-        verify(labelRepository).getLabelById(request.labelId());
-        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(labelRepository).getLabelById(labelId);
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verifyNoInteractions(labelInFragmentRepository);
     }
 
     @Test
     void testRemoveLabelFromFragmentProjectNotOwnedByUserLabelCheck() {
-        RemoveLabelFromFragmentRequest request = new RemoveLabelFromFragmentRequest(1L, 1L);
+        Long labelId = 1L;
+        Long fragmentId = 1L;
         User user = User.builder().id(1L).build();
         User user2 = User.builder().id(2L).build();
         Project project = Project.builder().id(1L).owner(user2).build();
         Label label = Label.builder().id(1L).project(project).build();
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(labelRepository.getLabelById(request.labelId())).thenReturn(Optional.of(label));
+        when(labelRepository.getLabelById(labelId)).thenReturn(Optional.of(label));
 
-        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> labelService.removeLabelFromFragment(labelId, fragmentId));
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(labelRepository).getLabelById(request.labelId());
+        verify(labelRepository).getLabelById(labelId);
         verifyNoInteractions(labelInFragmentRepository);
     }
 

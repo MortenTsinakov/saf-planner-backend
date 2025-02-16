@@ -1,57 +1,47 @@
 ###
-GET http://localhost:8080/api/label?projectId=1
+GET http://localhost:8080/api/labels?projectId=4
 
 ###
 POST http://localhost:8080/api/label
 Content-Type: application/json
 
 {
-    "projectId": 1,
+    "projectId": 4,
     "description": "Test",
     "color": "#6cd36d"
 }
 
 ###
-POST http://localhost:8080/api/label/fragment
+POST http://localhost:8080/api/fragment/label
 Content-Type: application/json
 
 {
-    "labelId": 4,
-    "fragmentId": 1
+    "labelId": 39,
+    "fragmentId": 80
 }
 
 ###
-POST http://localhost:8080/api/label/fragment/all
+POST http://localhost:8080/api/fragment/labels
 Content-Type: application/json
 
 {
-    "labelIds": [20, 21, 34],
+    "labelIds": [39],
     "fragmentId": 58
 }
 
 ###
-PUT http://localhost:8080/api/label
+PUT http://localhost:8080/api/label?id=39
 Content-Type: application/json
 
 {
-    "labelId": 5,
     "description": "Test label",
     "color": "#666666"
 }
 
 ###
-DELETE http://localhost:8080/api/label
+DELETE http://localhost:8080/api/label?id=39
 Content-Type: application/json
-
-{
-    "labelId": 4
-}
 
 ###
-DELETE http://localhost:8080/api/label/fragment
+DELETE http://localhost:8080/api/fragment/label?labelId=39&fragmentId=58
 Content-Type: application/json
-
-{
-    "labelId": 4,
-    "fragmentId": 1
-}
