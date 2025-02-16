@@ -1,11 +1,11 @@
 ###
-GET http://localhost:8080/api/project/all
+GET http://localhost:8080/api/projects
 
 ###
-GET http://localhost:8080/api/project?projectId=3
+GET http://localhost:8080/api/projects?projectId=4
 
 ###
-POST http://localhost:8080/api/project
+POST http://localhost:8080/api/projects
 Content-Type: application/json
 
 {
@@ -15,36 +15,29 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:8080/api/project/title
+PATCH http://localhost:8080/api/projects?id=4
 Content-Type: application/json
 
 {
-    "projectId": 14,
-    "title": "Blaa 2"
+    "title": "Blaa"
 }
 
 ###
-PUT http://localhost:8080/api/project/description
+PATCH http://localhost:8080/api/projects?id=4
 Content-Type: application/json
 
 {
-    "projectId": 14,
-    "description": "Description"
+    "description": "Description for Blaa"
 }
 
 ###
-PUT http://localhost:8080/api/project/estimated-length
+PATCH http://localhost:8080/api/projects?id=4
 Content-Type: application/json
 
 {
-    "projectId": 14,
     "estimatedLengthInSeconds": 182
 }
 
 ###
-DELETE http://localhost:8080/api/project
+DELETE http://localhost:8080/api/projects?id=9
 Content-Type: application/json
-
-{
-    "projectId": 2
-}

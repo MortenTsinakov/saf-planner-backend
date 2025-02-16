@@ -6,11 +6,11 @@ import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,51 +28,26 @@ class UpdateProjectRequestTest {
     }
 
     @Test
-    void testUpdateProjectTitleRequestIdIsNull() {
-        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(
-                null,
-                "Title"
+    void testUpdateProjectTitleRequest() {
+        UpdateProjectRequest request = new UpdateProjectRequest(
+                Optional.of("Title"),
+                Optional.empty(),
+                Optional.empty()
         );
 
-        Set<ConstraintViolation<UpdateProjectTitleRequest>> constraintViolations = validator.validate(request);
-        assertFalse(constraintViolations.isEmpty());
-        assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
-                .getAnnotation()
-                .annotationType()
-                .equals(NotNull.class)));
-    }
-
-    @Test
-    void testUpdateProjectTitleRequest() {
-        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(1L, "Title");
-
-        Set<ConstraintViolation<UpdateProjectTitleRequest>> constraintViolations = validator.validate(request);
+        Set<ConstraintViolation<UpdateProjectRequest>> constraintViolations = validator.validate(request);
         assertTrue(constraintViolations.isEmpty());
     }
 
     @Test
-    void testUpdateProjectTitleRequestTitleIsNull() {
-        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(
-                1L,
-                null
-        );
-
-        Set<ConstraintViolation<UpdateProjectTitleRequest>> constraintViolations = validator.validate(request);
-        assertFalse(constraintViolations.isEmpty());
-        assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
-                .getAnnotation()
-                .annotationType()
-                .equals(NotBlank.class)));
-    }
-
-    @Test
     void testUpdateProjectRequestTitleIsEmpty() {
-        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(
-                1L,
-                ""
+        UpdateProjectRequest request = new UpdateProjectRequest(
+                Optional.of(""),
+                Optional.empty(),
+                Optional.empty()
         );
 
-        Set<ConstraintViolation<UpdateProjectTitleRequest>> constraintViolations = validator.validate(request);
+        Set<ConstraintViolation<UpdateProjectRequest>> constraintViolations = validator.validate(request);
         assertFalse(constraintViolations.isEmpty());
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
@@ -82,12 +57,13 @@ class UpdateProjectRequestTest {
 
     @Test
     void testUpdateProjectRequestTitleIsBlank() {
-        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(
-                1L,
-                "      "
+        UpdateProjectRequest request = new UpdateProjectRequest(
+                Optional.of("      "),
+                Optional.empty(),
+                Optional.empty()
         );
 
-        Set<ConstraintViolation<UpdateProjectTitleRequest>> constraintViolations = validator.validate(request);
+        Set<ConstraintViolation<UpdateProjectRequest>> constraintViolations = validator.validate(request);
         assertFalse(constraintViolations.isEmpty());
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
@@ -102,12 +78,13 @@ class UpdateProjectRequestTest {
             stringBuilder.append((char) i);
         }
         String title = stringBuilder.toString();
-        UpdateProjectTitleRequest request = new UpdateProjectTitleRequest(
-                1L,
-                title
+        UpdateProjectRequest request = new UpdateProjectRequest(
+                Optional.of(title),
+                Optional.empty(),
+                Optional.empty()
         );
 
-        Set<ConstraintViolation<UpdateProjectTitleRequest>> constraintViolations = validator.validate(request);
+        Set<ConstraintViolation<UpdateProjectRequest>> constraintViolations = validator.validate(request);
         assertFalse(constraintViolations.isEmpty());
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()
@@ -116,37 +93,14 @@ class UpdateProjectRequestTest {
     }
 
     @Test
-    void testUpdateProjectDescriptionRequestIdIsNull() {
-        UpdateProjectDescriptionRequest request = new UpdateProjectDescriptionRequest(null, "Description");
-
-        Set<ConstraintViolation<UpdateProjectDescriptionRequest>> constraintViolations = validator.validate(request);
-        assertFalse(constraintViolations.isEmpty());
-        assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
-                .getAnnotation()
-                .annotationType()
-                .equals(NotNull.class)));
-    }
-
-    @Test
-    void testUpdateProjectEstimatedLengthRequestIdIsNull() {
-        UpdateProjectEstimatedLengthRequest request = new UpdateProjectEstimatedLengthRequest(null, 120);
-
-        Set<ConstraintViolation<UpdateProjectEstimatedLengthRequest>> constraintViolations = validator.validate(request);
-        assertFalse(constraintViolations.isEmpty());
-        assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
-                .getAnnotation()
-                .annotationType()
-                .equals(NotNull.class)));
-    }
-
-    @Test
     void testUpdateProjectEstimatedLengthRequestEstimatedLengthIsNegative() {
-        UpdateProjectEstimatedLengthRequest request = new UpdateProjectEstimatedLengthRequest(
-                1L,
-                -1
+        UpdateProjectRequest request = new UpdateProjectRequest(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(-1)
         );
 
-        Set<ConstraintViolation<UpdateProjectEstimatedLengthRequest>> constraintViolations = validator.validate(request);
+        Set<ConstraintViolation<UpdateProjectRequest>> constraintViolations = validator.validate(request);
         assertFalse(constraintViolations.isEmpty());
         assertTrue(constraintViolations.stream().anyMatch(v -> v.getConstraintDescriptor()
                 .getAnnotation()

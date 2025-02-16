@@ -1,15 +1,9 @@
 package hr.adriaticanimation.saf_planner.services.fragment;
 
 import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
-import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
-import hr.adriaticanimation.saf_planner.dtos.fragment.MoveFragmentRequest;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentDuration;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentLongDescription;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentOnTimelineStatus;
 import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentRequest;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentShortDescription;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
@@ -26,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -69,16 +62,22 @@ public class FragmentService {
     }
 
     @Transactional
-    public <T extends UpdateFragmentRequest> ResponseEntity<FragmentResponse> updateFragment(T request, Consumer<Fragment> updateAction) {
+    public ResponseEntity<FragmentResponse> updateFragment(Long fragmentId, UpdateFragmentRequest request) {
         User user = authenticationService.getUserFromSecurityContextHolder();
-        Fragment fragment = fragmentRepository.getFragmentById(request.getFragmentId())
+        Fragment fragment = fragmentRepository.getFragmentById(fragmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Fragment not found"));
         Project project = fragment.getProject();
+
         if (!project.getOwner().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Project not found");
+            throw new ResourceNotFoundException("Fragment not found");
         }
 
-        updateAction.accept(fragment);
+        request.shortDescription().ifPresent(fragment::setShortDescription);
+        request.longDescription().ifPresent(fragment::setLongDescription);
+        request.durationInSeconds().ifPresent(fragment::setDurationInSeconds);
+        request.onTimeline().ifPresent(fragment::setOnTimeline);
+        request.position().ifPresent(position -> moveFragment(project, fragment, position));
+
         project.setUpdatedAt(Timestamp.from(Instant.now()));
 
         fragmentRepository.save(fragment);
@@ -89,29 +88,9 @@ public class FragmentService {
     }
 
     @Transactional
-    public ResponseEntity<FragmentResponse> updateFragmentShortDescription(UpdateFragmentShortDescription request) {
-        return updateFragment(request, fragment -> fragment.setShortDescription(request.getShortDescription()));
-    }
-
-    @Transactional
-    public ResponseEntity<FragmentResponse> updateFragmentLongDescription(UpdateFragmentLongDescription request) {
-        return updateFragment(request, fragment -> fragment.setLongDescription(request.getLongDescription()));
-    }
-
-    @Transactional
-    public ResponseEntity<FragmentResponse> updateFragmentDuration(UpdateFragmentDuration request) {
-        return updateFragment(request, fragment -> fragment.setDurationInSeconds(request.getDurationInSeconds()));
-    }
-
-    @Transactional
-    public ResponseEntity<FragmentResponse> updateFragmentOnTimelineStatus(UpdateFragmentOnTimelineStatus request) {
-        return updateFragment(request, fragment -> fragment.setOnTimeline(request.isOnTimeline()));
-    }
-
-    @Transactional
-    public ResponseEntity<DeleteFragmentResponse> deleteFragment(DeleteFragmentRequest request) {
+    public ResponseEntity<DeleteFragmentResponse> deleteFragment(Long fragmentId) {
         User user = authenticationService.getUserFromSecurityContextHolder();
-        Fragment fragment = fragmentRepository.getFragmentById(request.fragmentId())
+        Fragment fragment = fragmentRepository.getFragmentById(fragmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Fragment not found"));
         Project project = fragment.getProject();
         if (!user.getId().equals(project.getOwner().getId())) {
@@ -128,32 +107,17 @@ public class FragmentService {
     }
 
     @Transactional
-    public ResponseEntity<FragmentResponse> moveFragment(MoveFragmentRequest request) {
-        Fragment fragment = fragmentRepository.getFragmentById(request.fragmentId())
-                .orElseThrow(() -> new ResourceNotFoundException("Fragment not found"));
-        Project project = fragment.getProject();
-        User user = authenticationService.getUserFromSecurityContextHolder();
-
-        if (!user.getId().equals(project.getOwner().getId())) {
-            throw new ResourceNotFoundException("Fragment not found");
-        }
-
-        if (fragment.getPosition() == request.newPosition()) {
+    public void moveFragment(Project project, Fragment fragment, Integer position) {
+        if (fragment.getPosition() == position) {
             throw new IllegalArgumentException("Fragment is already in requested position");
         }
 
-        if (request.newPosition() > fragment.getPosition()) {
-            fragmentRepository.shiftFragmentPositionsBackward(project.getId(), fragment.getPosition(), request.newPosition());
+        if (position > fragment.getPosition()) {
+            fragmentRepository.shiftFragmentPositionsBackward(project.getId(), fragment.getPosition(), position);
         } else {
-            fragmentRepository.shiftFragmentPositionsForward(project.getId(), request.newPosition(), fragment.getPosition());
+            fragmentRepository.shiftFragmentPositionsForward(project.getId(), position, fragment.getPosition());
         }
 
-        fragment.setPosition(request.newPosition());
-        fragment = fragmentRepository.save(fragment);
-        project.setUpdatedAt(Timestamp.from(Instant.now()));
-        projectRepository.save(project);
-
-        FragmentResponse response = fragmentMapper.fragmentToFragmentResponse(fragment);
-        return ResponseEntity.ok(response);
+        fragment.setPosition(position);
     }
 }

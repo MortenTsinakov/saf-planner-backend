@@ -3,10 +3,8 @@ package hr.adriaticanimation.saf_planner.services.label;
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.AttachLabelsToFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.CreateLabelRequest;
-import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.DeleteLabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
-import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.label.RemoveLabelFromFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.UpdateLabelRequest;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
@@ -23,14 +21,11 @@ import hr.adriaticanimation.saf_planner.repositories.label.LabelRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
 import hr.adriaticanimation.saf_planner.services.project.ProjectService;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * Service for label operations
@@ -83,8 +78,8 @@ public class LabelService {
      * @param request - request for updating the label
      * @return - updated label
      */
-    public ResponseEntity<LabelResponse> updateLabel(UpdateLabelRequest request) {
-        Label label = getLabelById(request.labelId());
+    public ResponseEntity<LabelResponse> updateLabel(Long labelId, UpdateLabelRequest request) {
+        Label label = getLabelById(labelId);
         label.setDescription(request.description());
         label.setColor(request.color());
         label = labelRepository.save(label);
@@ -93,8 +88,15 @@ public class LabelService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<DeleteLabelResponse> deleteLabel(DeleteLabelRequest request) {
-        Label label = getLabelById(request.labelId());
+    @Transactional
+    public ResponseEntity<DeleteLabelResponse> deleteLabel(Long id) {
+        Label label = getLabelById(id);
+        Project project = label.getProject();
+
+        if (project != null) {
+            project.getLabels().remove(label);
+        }
+
         labelRepository.deleteById(label.getId());
         DeleteLabelResponse response = new DeleteLabelResponse(label.getId(), "Label deleted");
         return ResponseEntity.ok(response);
@@ -182,14 +184,15 @@ public class LabelService {
     }
 
     /**
-     * Remove a label from a fragment
-     * @param request - request to remove a label from fragment
-     * @return - message indicating successful removal
+     * Remove label from a fragment
+     * @param labelId - id of the label to be removed
+     * @param fragmentId - id of the fragment from which to remove the label
+     * @return - success message in case of successful removal
      */
     @Transactional
-    public ResponseEntity<RemoveLabelFromFragmentResponse> removeLabelFromFragment(RemoveLabelFromFragmentRequest request) {
-        Label label = getLabelById(request.labelId());
-        Fragment fragment = getFragmentById(request.fragmentId());
+    public ResponseEntity<RemoveLabelFromFragmentResponse> removeLabelFromFragment(Long labelId, Long fragmentId) {
+        Label label = getLabelById(labelId);
+        Fragment fragment = getFragmentById(fragmentId);
 
         labelInFragmentRepository.deleteById(new LabelInFragmentId(label.getId(), fragment.getId()));
         RemoveLabelFromFragmentResponse response = new RemoveLabelFromFragmentResponse(

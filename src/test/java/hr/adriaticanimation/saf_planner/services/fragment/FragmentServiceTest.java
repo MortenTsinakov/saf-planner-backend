@@ -1,14 +1,9 @@
 package hr.adriaticanimation.saf_planner.services.fragment;
 
 import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
-import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.DeleteFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
-import hr.adriaticanimation.saf_planner.dtos.fragment.MoveFragmentRequest;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentDuration;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentLongDescription;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentOnTimelineStatus;
-import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentShortDescription;
+import hr.adriaticanimation.saf_planner.dtos.fragment.UpdateFragmentRequest;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
@@ -24,10 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -138,11 +131,16 @@ class FragmentServiceTest {
     }
 
     @Test
-    void testUpdateFragmentShortDescriptionSuccess() throws NoSuchFieldException, IllegalAccessException {
-        UpdateFragmentShortDescription request = new UpdateFragmentShortDescription();
-        Field shortField = request.getClass().getDeclaredField("shortDescription");
-        shortField.setAccessible(true);
-        shortField.set(request, "short");
+    void testUpdateFragmentShortDescriptionSuccess() {
+        Long fragmentId = 1L;
+        String shortDescription = "shortDescription";
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.of(shortDescription),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -155,30 +153,35 @@ class FragmentServiceTest {
         FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.getFragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(fragmentRepository.save(fragment)).thenReturn(fragment);
         when(projectRepository.save(project)).thenReturn(project);
         when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
 
-        fragmentService.updateFragmentShortDescription(request);
+        fragmentService.updateFragment(fragmentId, request);
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(fragmentRepository).getFragmentById(request.getFragmentId());
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(fragmentRepository).save(fragment);
         verify(projectRepository).save(project);
         verify(fragmentMapper).fragmentToFragmentResponse(fragment);
 
-        assertEquals(request.getShortDescription(), fragment.getShortDescription());
+        assertEquals(shortDescription, fragment.getShortDescription());
         assertNotNull(project.getUpdatedAt());
 
     }
 
     @Test
-    void testUpdateFragmentLongDescriptionSuccess() throws NoSuchFieldException, IllegalAccessException {
-        UpdateFragmentLongDescription request = new UpdateFragmentLongDescription();
-        Field shortField = request.getClass().getDeclaredField("longDescription");
-        shortField.setAccessible(true);
-        shortField.set(request, "long");
+    void testUpdateFragmentLongDescriptionSuccess() {
+        Long fragmentId = 1L;
+        String longDescription = "longDescription";
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+            Optional.empty(),
+            Optional.of(longDescription),
+            Optional.empty(),
+            Optional.empty(),
+            Optional.empty()
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -191,30 +194,35 @@ class FragmentServiceTest {
         FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.getFragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(fragmentRepository.save(fragment)).thenReturn(fragment);
         when(projectRepository.save(project)).thenReturn(project);
         when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
 
-        fragmentService.updateFragmentLongDescription(request);
+        fragmentService.updateFragment(fragmentId, request);
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(fragmentRepository).getFragmentById(request.getFragmentId());
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(fragmentRepository).save(fragment);
         verify(projectRepository).save(project);
         verify(fragmentMapper).fragmentToFragmentResponse(fragment);
 
-        assertEquals(request.getLongDescription(), fragment.getLongDescription());
+        assertEquals(longDescription, fragment.getLongDescription());
         assertNotNull(project.getUpdatedAt());
 
     }
 
     @Test
-    void testUpdateFragmentDurationSuccess() throws NoSuchFieldException, IllegalAccessException {
-        UpdateFragmentDuration request = new UpdateFragmentDuration();
-        Field shortField = request.getClass().getDeclaredField("durationInSeconds");
-        shortField.setAccessible(true);
-        shortField.set(request, 15);
+    void testUpdateFragmentDurationSuccess() {
+        Long fragmentId = 1L;
+        Integer duration = 10;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                  Optional.empty(),
+                Optional.empty(),
+                Optional.of(duration),
+                Optional.empty(),
+                Optional.empty()
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -227,30 +235,35 @@ class FragmentServiceTest {
         FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.getFragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(fragmentRepository.save(fragment)).thenReturn(fragment);
         when(projectRepository.save(project)).thenReturn(project);
         when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
 
-        fragmentService.updateFragmentDuration(request);
+        fragmentService.updateFragment(fragmentId, request);
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(fragmentRepository).getFragmentById(request.getFragmentId());
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(fragmentRepository).save(fragment);
         verify(projectRepository).save(project);
         verify(fragmentMapper).fragmentToFragmentResponse(fragment);
 
-        assertEquals(request.getDurationInSeconds(), fragment.getDurationInSeconds());
+        assertEquals(duration, fragment.getDurationInSeconds());
         assertNotNull(project.getUpdatedAt());
 
     }
 
     @Test
-    void testUpdateFragmentOnTimelineSuccess() throws NoSuchFieldException, IllegalAccessException {
-        UpdateFragmentOnTimelineStatus request = new UpdateFragmentOnTimelineStatus();
-        Field shortField = request.getClass().getDeclaredField("onTimeline");
-        shortField.setAccessible(true);
-        shortField.set(request, false);
+    void testUpdateFragmentOnTimelineSuccess() {
+        Long fragmentId = 1L;
+        Boolean onTimeline = false;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(onTimeline),
+                Optional.empty()
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -263,36 +276,42 @@ class FragmentServiceTest {
         FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.getFragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(fragmentRepository.save(fragment)).thenReturn(fragment);
         when(projectRepository.save(project)).thenReturn(project);
         when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
 
-        fragmentService.updateFragmentOnTimelineStatus(request);
+        fragmentService.updateFragment(fragmentId, request);
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(fragmentRepository).getFragmentById(request.getFragmentId());
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(fragmentRepository).save(fragment);
         verify(projectRepository).save(project);
         verify(fragmentMapper).fragmentToFragmentResponse(fragment);
 
-        assertEquals(request.isOnTimeline(), fragment.isOnTimeline());
+        assertEquals(onTimeline, fragment.isOnTimeline());
         assertNotNull(project.getUpdatedAt());
 
     }
 
     @Test
     void testUpdateFragmentShortDescriptionFragmentNotFound() {
-        UpdateFragmentShortDescription request = new UpdateFragmentShortDescription();
+        Long fragmentId = 1L;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.of("ShortDescription"),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
-        Consumer<Fragment> updateAction = f -> f.setShortDescription(request.getShortDescription());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.getFragmentId())).thenReturn(Optional.empty());
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> fragmentService.updateFragment(request, updateAction));
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.updateFragment(fragmentId, request));
 
         verifyNoMoreInteractions(authenticationService);
         verifyNoMoreInteractions(fragmentRepository);
@@ -303,7 +322,14 @@ class FragmentServiceTest {
 
     @Test
     void testUpdateFragmentShortDescriptionProjectOwnerIsNotTheUser() {
-        UpdateFragmentShortDescription request = new UpdateFragmentShortDescription();
+        Long fragmentId = 1L;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.of("ShortDescription"),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -316,12 +342,11 @@ class FragmentServiceTest {
         Fragment fragment = Fragment.builder()
                 .project(project)
                 .build();
-        Consumer<Fragment> updateAction = f -> f.setShortDescription(request.getShortDescription());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.getFragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
 
-        assertThrows(ResourceNotFoundException.class, () -> fragmentService.updateFragment(request, updateAction));
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.updateFragment(fragmentId, request));
 
         verifyNoMoreInteractions(authenticationService);
         verifyNoMoreInteractions(fragmentRepository);
@@ -332,7 +357,7 @@ class FragmentServiceTest {
 
     @Test
     void testDeleteFragmentSuccess() {
-        DeleteFragmentRequest request = new DeleteFragmentRequest(3L);
+        Long fragmentId = 1L;
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -347,16 +372,16 @@ class FragmentServiceTest {
                 .build();
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
 
-        ResponseEntity<DeleteFragmentResponse> response = fragmentService.deleteFragment(request);
+        ResponseEntity<DeleteFragmentResponse> response = fragmentService.deleteFragment(fragmentId);
 
         assertNotNull(response);
         assertTrue(response.getStatusCode().is2xxSuccessful());
         assertNotNull(project.getUpdatedAt());
 
         verify(authenticationService).getUserFromSecurityContextHolder();
-        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(fragmentRepository).shiftFragmentPositionsBackward(project.getId(), fragment.getPosition());
         verify(fragmentRepository).delete(fragment);
         verify(projectRepository).save(project);
@@ -364,13 +389,13 @@ class FragmentServiceTest {
 
     @Test
     void testDeleteFragmentNotFound() {
-        DeleteFragmentRequest request = new DeleteFragmentRequest(3L);
+        Long fragmentId = 3L;
         User user = new User();
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.empty());
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> fragmentService.deleteFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.deleteFragment(fragmentId));
 
         verifyNoMoreInteractions(authenticationService);
         verifyNoMoreInteractions(fragmentRepository);
@@ -379,7 +404,7 @@ class FragmentServiceTest {
 
     @Test
     void testDeleteFragmentProjectOwnerIsNotTheUser() {
-        DeleteFragmentRequest request = new DeleteFragmentRequest(3L);
+        Long fragmentId = 3L;
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -394,9 +419,9 @@ class FragmentServiceTest {
                 .build();
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
 
-        assertThrows(ResourceNotFoundException.class, () -> fragmentService.deleteFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.deleteFragment(fragmentId));
         verifyNoMoreInteractions(authenticationService);
         verifyNoMoreInteractions(fragmentRepository);
         verifyNoInteractions(projectRepository);
@@ -404,6 +429,14 @@ class FragmentServiceTest {
 
     @Test
     void testMoveFragmentBackwardSuccess() {
+        Long fragmentId = 1L;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(1)
+        );
         User owner = User.builder()
                 .id(1L)
                 .build();
@@ -416,19 +449,18 @@ class FragmentServiceTest {
                 .project(project)
                 .position(5)
                 .build();
-        MoveFragmentRequest request = new MoveFragmentRequest(1L, 1);
         FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 1, project.getId(), List.of());
 
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(owner);
         when(fragmentRepository.save(fragment)).thenReturn(fragment);
         when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
 
-        ResponseEntity<FragmentResponse> result = fragmentService.moveFragment(request);
+        ResponseEntity<FragmentResponse> result = fragmentService.updateFragment(fragmentId, request);
 
         assertTrue(result.getStatusCode().is2xxSuccessful());
 
-        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(authenticationService).getUserFromSecurityContextHolder();
         verify(fragmentRepository).shiftFragmentPositionsForward(project.getId(), 1, 5);
         verify(projectRepository).save(project);
@@ -438,6 +470,14 @@ class FragmentServiceTest {
 
     @Test
     void testMoveFragmentForwardSuccess() {
+        Long fragmentId = 1L;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(7)
+        );
         User owner = User.builder()
                 .id(1L)
                 .build();
@@ -450,19 +490,18 @@ class FragmentServiceTest {
                 .project(project)
                 .position(2)
                 .build();
-        MoveFragmentRequest request = new MoveFragmentRequest(1L, 7);
         FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 7, project.getId(), List.of());
 
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(owner);
         when(fragmentRepository.save(fragment)).thenReturn(fragment);
         when(fragmentMapper.fragmentToFragmentResponse(fragment)).thenReturn(response);
 
-        ResponseEntity<FragmentResponse> result = fragmentService.moveFragment(request);
+        ResponseEntity<FragmentResponse> result = fragmentService.updateFragment(fragmentId, request);
 
         assertTrue(result.getStatusCode().is2xxSuccessful());
 
-        verify(fragmentRepository).getFragmentById(request.fragmentId());
+        verify(fragmentRepository).getFragmentById(fragmentId);
         verify(authenticationService).getUserFromSecurityContextHolder();
         verify(fragmentRepository).shiftFragmentPositionsBackward(project.getId(), 2, 7);
         verify(projectRepository).save(project);
@@ -472,20 +511,36 @@ class FragmentServiceTest {
 
     @Test
     void testMoveFragmentNotFound() {
-        MoveFragmentRequest request = new MoveFragmentRequest(1L, 7);
+        Long fragmentId = 1L;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(7)
+        );
+        User user = User.builder().id(1L).build();
 
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.empty());
+        when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> fragmentService.moveFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.updateFragment(fragmentId, request));
 
         verifyNoMoreInteractions(fragmentRepository);
-        verifyNoInteractions(authenticationService);
         verifyNoInteractions(projectRepository);
         verifyNoInteractions(fragmentMapper);
     }
 
     @Test
     void testMoveFragmentProjectOwnerIsNotTheUser() {
+        Long fragmentId = 1L;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(7)
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -501,12 +556,11 @@ class FragmentServiceTest {
                 .project(project)
                 .position(5)
                 .build();
-        MoveFragmentRequest request = new MoveFragmentRequest(1L, 1);
 
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
 
-        assertThrows(ResourceNotFoundException.class, () -> fragmentService.moveFragment(request));
+        assertThrows(ResourceNotFoundException.class, () -> fragmentService.updateFragment(fragmentId, request));
 
         verifyNoMoreInteractions(fragmentRepository);
         verifyNoInteractions(projectRepository);
@@ -515,6 +569,14 @@ class FragmentServiceTest {
 
     @Test
     void testMoveFragmentAlreadyInRequestedPosition() {
+        Long fragmentId = 1L;
+        UpdateFragmentRequest request = new UpdateFragmentRequest(
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(5)
+        );
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -527,12 +589,11 @@ class FragmentServiceTest {
                 .project(project)
                 .position(5)
                 .build();
-        MoveFragmentRequest request = new MoveFragmentRequest(1L, 5);
 
-        when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
+        when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
 
-        assertThrows(IllegalArgumentException.class, () -> fragmentService.moveFragment(request));
+        assertThrows(IllegalArgumentException.class, () -> fragmentService.updateFragment(fragmentId, request));
 
         verifyNoMoreInteractions(fragmentRepository);
         verifyNoInteractions(projectRepository);

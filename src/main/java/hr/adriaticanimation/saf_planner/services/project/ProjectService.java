@@ -1,12 +1,9 @@
 package hr.adriaticanimation.saf_planner.services.project;
 
 import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
-import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.DeleteProjectResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
-import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectDescriptionRequest;
-import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectEstimatedLengthRequest;
-import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectTitleRequest;
+import hr.adriaticanimation.saf_planner.dtos.project.UpdateProjectRequest;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
@@ -53,45 +50,27 @@ public class ProjectService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ProjectResponse> updateProjectTitle(UpdateProjectTitleRequest request) {
-        Project project = getUserProjectById(request.projectId());
+    public ResponseEntity<ProjectResponse> updateProject(Long id, UpdateProjectRequest request) {
+        Project project = getUserProjectById(id);
 
-        project.setTitle(request.title());
+        request.title().ifPresent(project::setTitle);
+        request.description().ifPresent(project::setDescription);
+        request.estimatedLengthInSeconds().ifPresent(project::setEstimatedLengthInSeconds);
+
         project.setUpdatedAt(Timestamp.from(Instant.now()));
 
         project = projectRepository.save(project);
+
         ProjectResponse response = projectMapper.projectToProjectResponse(project);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ProjectResponse> updateProjectDescription(UpdateProjectDescriptionRequest request) {
-        Project project = getUserProjectById(request.projectId());
-
-        project.setDescription(request.description());
-        project.setUpdatedAt(Timestamp.from(Instant.now()));
-
-        project = projectRepository.save(project);
-        ProjectResponse response = projectMapper.projectToProjectResponse(project);
-        return ResponseEntity.ok(response);
-    }
-
-    public ResponseEntity<ProjectResponse> updateProjectEstimatedLength(UpdateProjectEstimatedLengthRequest request) {
-        Project project = getUserProjectById(request.projectId());
-
-        project.setEstimatedLengthInSeconds(request.estimatedLengthInSeconds());
-        project.setUpdatedAt(Timestamp.from(Instant.now()));
-
-        project = projectRepository.save(project);
-        ProjectResponse response = projectMapper.projectToProjectResponse(project);
-        return ResponseEntity.ok(response);
-    }
-
-    public ResponseEntity<DeleteProjectResponse> deleteProject(DeleteProjectRequest request) {
+    public ResponseEntity<DeleteProjectResponse> deleteProject(Long projectId) {
         User user = authenticationService.getUserFromSecurityContextHolder();
-        Project project = projectRepository.getProjectByIdAndOwner(request.projectId(), user)
+        Project project = projectRepository.getProjectByIdAndOwner(projectId, user)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
         projectRepository.delete(project);
-        DeleteProjectResponse response = new DeleteProjectResponse(request.projectId(), "Project was successfully deleted");
+        DeleteProjectResponse response = new DeleteProjectResponse(projectId, "Project was successfully deleted");
         return ResponseEntity.ok(response);
     }
 
