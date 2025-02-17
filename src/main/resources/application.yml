@@ -4,8 +4,6 @@ server:
 spring:
   application:
     name: saf-planner
-  config:
-    import: file:.env[.properties]
   flyway:
     enabled: true
   profiles:
