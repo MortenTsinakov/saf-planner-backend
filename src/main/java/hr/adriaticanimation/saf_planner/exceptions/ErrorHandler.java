@@ -1,6 +1,7 @@
 package hr.adriaticanimation.saf_planner.exceptions;
 
 import hr.adriaticanimation.saf_planner.dtos.error.ErrorResponse;
+import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ImageStorageException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.RefreshTokenException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.SignUpException;
@@ -36,6 +37,12 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
         log.debug(e.getMessage());
         return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ImageStorageException.class)
+    public ResponseEntity<ErrorResponse> handleImageStorageException(ImageStorageException e) {
+        log.debug(e.getMessage());
+        return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
