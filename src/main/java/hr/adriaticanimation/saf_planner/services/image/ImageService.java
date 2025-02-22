@@ -58,6 +58,7 @@ public class ImageService {
 
             // TODO: Create database table for storing image information. The fragmentId needs an index
             // TODO: Save image information (generated file name, fragment id) to database
+            // TODO: Scale image down to some reasonable size
 
             UploadImageResponse response = new UploadImageResponse(
                     "Image saved",
