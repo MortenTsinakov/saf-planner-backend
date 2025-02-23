@@ -1,6 +1,6 @@
 package hr.adriaticanimation.saf_planner.dtos.image;
 
-public record UploadImageResponse(
-        String message,
+public record FragmentImageResponse(
+        Long fragmentId,
         String image
 ) {}

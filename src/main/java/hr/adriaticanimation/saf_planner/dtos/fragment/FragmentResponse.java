@@ -12,5 +12,6 @@ public record FragmentResponse(
         boolean onTimeline,
         Integer position,
         Long projectId,
-        List<LabelResponse> labels
+        List<LabelResponse> labels,
+        List<String> images
 ) {}
