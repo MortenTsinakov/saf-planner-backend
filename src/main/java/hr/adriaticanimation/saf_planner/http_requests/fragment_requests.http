@@ -1,14 +1,14 @@
 ###
-GET http://localhost:8080/api/fragments?projectId=4
+GET http://localhost:8080/api/fragments?projectId=3
 
 ###
 POST http://localhost:8080/api/fragments
 Content-Type: application/json
 
 {
-  "shortDescription": "Test short description",
+  "shortDescription": "Test fragment - deleting image with it",
   "longDescription": "Test long description",
-  "durationInSeconds": 20,
+  "durationInSeconds": 5,
   "onTimeline": true,
   "position": 1,
   "projectId": 4
@@ -55,5 +55,5 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/api/fragments?id=81
+DELETE http://localhost:8080/api/fragments?id=93
 Content-Type: application/json

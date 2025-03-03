@@ -1,6 +1,7 @@
 package hr.adriaticanimation.saf_planner.exceptions;
 
 import hr.adriaticanimation.saf_planner.dtos.error.ErrorResponse;
+import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ImageException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.RefreshTokenException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.SignUpException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @ControllerAdvice
@@ -36,6 +38,12 @@ public class ErrorHandler {
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
         log.debug(e.getMessage());
         return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ImageException.class)
+    public ResponseEntity<ErrorResponse> handleImageStorageException(ImageException e) {
+        log.debug(e.getMessage());
+        return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -61,9 +69,16 @@ public class ErrorHandler {
         return new ResponseEntity<>(new ErrorResponse(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleFileNotFoundException(FileNotFoundException e) {
+        log.debug(e.getMessage());
+        return new ResponseEntity<>(new ErrorResponse("File not found"), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         log.error(e.getMessage());
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error(e.getClass().getName());
+        return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

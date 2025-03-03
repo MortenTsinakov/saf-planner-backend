@@ -4,6 +4,9 @@ spring:
     username: postgres
     password: postgres
 
+uploads:
+  directory: ${user.home}/saf-planner/uploads
+
 logging:
   level:
     hr.adriaticanimation.saf-planner: DEBUG
