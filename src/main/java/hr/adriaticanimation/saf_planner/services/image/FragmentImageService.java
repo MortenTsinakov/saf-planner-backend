@@ -68,7 +68,7 @@ public class FragmentImageService {
             Fragment fragment = fragmentRepository.getFragmentById(request.fragmentId())
                     .orElseThrow(() -> new ResourceNotFoundException("Fragment was not found"));
 
-            FragmentImage fragmentImage = saveImage(image, fragment);
+            FragmentImage fragmentImage = saveImage(image, fragment, request.description());
             FragmentImageResponse response = fragmentImageMapper.mapFragmentImageResponse(fragmentImage);
             return ResponseEntity.ok(response);
         } catch (IOException e) {
@@ -86,7 +86,7 @@ public class FragmentImageService {
      * @return - reference to the image
      * @throws IOException - if filesystem operations fail
      */
-    private FragmentImage saveImage(BufferedImage image, Fragment fragment)  throws IOException{
+    private FragmentImage saveImage(BufferedImage image, Fragment fragment, String description)  throws IOException{
         User user = authenticationService.getUserFromSecurityContextHolder();
 
         if (!fragment.getProject().getOwner().getId().equals(user.getId())) {
@@ -106,6 +106,7 @@ public class FragmentImageService {
         FragmentImage fragmentImage = FragmentImage.builder()
                 .id(uuid)
                 .fileExtension(fileExtension)
+                .description(description)
                 .fragment(fragment)
                 .owner(user)
                 .build();

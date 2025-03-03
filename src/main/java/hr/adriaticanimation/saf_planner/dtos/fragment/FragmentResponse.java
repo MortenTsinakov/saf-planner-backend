@@ -1,5 +1,6 @@
 package hr.adriaticanimation.saf_planner.dtos.fragment;
 
+import hr.adriaticanimation.saf_planner.dtos.image.FragmentImageResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 
 import java.util.List;
@@ -13,5 +14,5 @@ public record FragmentResponse(
         Integer position,
         Long projectId,
         List<LabelResponse> labels,
-        List<String> images
+        List<FragmentImageResponse> images
 ) {}

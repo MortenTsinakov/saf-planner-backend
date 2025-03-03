@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.mappers.fragment;
 
 import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
+import hr.adriaticanimation.saf_planner.dtos.image.FragmentImageResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.image.FragmentImage;
@@ -39,12 +40,16 @@ public interface FragmentMapper {
     }
 
     @Named("mapImages")
-    default List<String> mapImages(List<FragmentImage> fragmentImages) {
+    default List<FragmentImageResponse> mapImages(List<FragmentImage> fragmentImages) {
         if (fragmentImages == null || fragmentImages.isEmpty()) {
             return new ArrayList<>();
         }
         return fragmentImages.stream()
-                .map(image -> String.format("%s.%s", image.getId(), image.getFileExtension()))
+                .map(image -> new FragmentImageResponse(
+                        image.getFragment().getId(),
+                        String.format("%s.%s", image.getId(), image.getFileExtension()),
+                        image.getDescription()
+                ))
                 .toList();
     }
 

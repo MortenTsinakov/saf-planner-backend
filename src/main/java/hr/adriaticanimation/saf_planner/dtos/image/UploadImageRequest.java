@@ -8,5 +8,7 @@ public record UploadImageRequest(
         @ValidImageFile
         MultipartFile image,
         @NotNull(message = "Fragment id was not provided")
-        Long fragmentId
+        Long fragmentId,
+        @NotNull(message = "Image description shouldn't be null")
+        String description
 ) {}

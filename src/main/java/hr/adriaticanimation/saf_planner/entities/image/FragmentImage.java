@@ -29,6 +29,8 @@ public class FragmentImage {
     private String id;
     @Column(name = "file_extension", nullable = false)
     private String fileExtension;
+    @Column(name = "description", nullable = false)
+    private String description;
     @ManyToOne
     @JoinColumn(name = "owner", referencedColumnName = "id")
     private User owner;
