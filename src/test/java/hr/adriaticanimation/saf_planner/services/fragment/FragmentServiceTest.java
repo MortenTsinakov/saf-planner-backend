@@ -52,8 +52,8 @@ class FragmentServiceTest {
         Project project = new Project();
         Fragment f1 = new Fragment();
         Fragment f2 = new Fragment();
-        FragmentResponse fr1 = new FragmentResponse(null, null, null, null, true, null, null, null);
-        FragmentResponse fr2 = new FragmentResponse(null, null, null, null, true, null, null, null);
+        FragmentResponse fr1 = new FragmentResponse(null, null, null, null, true, null, null, null, null);
+        FragmentResponse fr2 = new FragmentResponse(null, null, null, null, true, null, null, null, null);
         List<Fragment> fragments = List.of(f1, f2);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
@@ -102,7 +102,7 @@ class FragmentServiceTest {
                 10,
                 1L
         );
-        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
+        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of(), List.of());
         Fragment fragment = Fragment.builder()
                 .id(1L)
                 .position(10)
@@ -150,7 +150,7 @@ class FragmentServiceTest {
         Fragment fragment = Fragment.builder()
                 .project(project)
                 .build();
-        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
+        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of(), List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
@@ -191,7 +191,7 @@ class FragmentServiceTest {
         Fragment fragment = Fragment.builder()
                 .project(project)
                 .build();
-        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
+        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of(), List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
@@ -232,7 +232,7 @@ class FragmentServiceTest {
         Fragment fragment = Fragment.builder()
                 .project(project)
                 .build();
-        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
+        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of(), List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
@@ -273,7 +273,7 @@ class FragmentServiceTest {
         Fragment fragment = Fragment.builder()
                 .project(project)
                 .build();
-        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of());
+        FragmentResponse response = new FragmentResponse(1L, "short", "long", 15, true, 10, 1L, List.of(), List.of());
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
@@ -449,7 +449,7 @@ class FragmentServiceTest {
                 .project(project)
                 .position(5)
                 .build();
-        FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 1, project.getId(), List.of());
+        FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 1, project.getId(), List.of(), List.of());
 
         when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(owner);
@@ -490,7 +490,7 @@ class FragmentServiceTest {
                 .project(project)
                 .position(2)
                 .build();
-        FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 7, project.getId(), List.of());
+        FragmentResponse response = new FragmentResponse(1L, "", "", 1, true, 7, project.getId(), List.of(), List.of());
 
         when(fragmentRepository.getFragmentById(fragmentId)).thenReturn(Optional.of(fragment));
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(owner);
