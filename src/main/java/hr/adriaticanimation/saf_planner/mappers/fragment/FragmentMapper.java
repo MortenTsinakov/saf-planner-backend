@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.mappers.fragment;
 
 import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
+import hr.adriaticanimation.saf_planner.dtos.fragment.SharedProjectFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.image.FragmentImageResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
@@ -24,6 +25,10 @@ public interface FragmentMapper {
     @Mapping(target = "labels", source = "labelInFragmentList", qualifiedByName = "mapLabels")
     @Mapping(target = "images", source = "images", qualifiedByName = "mapImages")
     FragmentResponse fragmentToFragmentResponse(Fragment fragment);
+
+    @Mapping(target = "projectId", expression = "java(fragment.getProject().getId())")
+    @Mapping(target = "images", source = "images", qualifiedByName = "mapImages")
+    SharedProjectFragmentResponse fragmentToSharedProjectFragmentResponse(Fragment fragment);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "project", source = "projectForFragment")
