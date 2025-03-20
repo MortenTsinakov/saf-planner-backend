@@ -3,12 +3,14 @@ package hr.adriaticanimation.saf_planner.controllers.project;
 import hr.adriaticanimation.saf_planner.dtos.fragment.SharedProjectFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ShareProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.SharedProjectResponse;
+import hr.adriaticanimation.saf_planner.dtos.project.StopSharingProjectResponse;
 import hr.adriaticanimation.saf_planner.services.project.SharedProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,5 +50,11 @@ public class SharedProjectController {
     @Operation(description = "Share project with another user")
     public ResponseEntity<SharedProjectResponse> shareProject(@Valid @RequestBody ShareProjectRequest request) {
         return sharedProjectService.shareProject(request);
+    }
+
+    @DeleteMapping(params = {"projectId", "userId"})
+    @Operation(description = "Stop sharing project with another user")
+    public ResponseEntity<StopSharingProjectResponse> stopSharingProject(@RequestParam("projectId") Long projectId, @RequestParam("userId") Long userId) {
+        return sharedProjectService.stopSharingProject(projectId, userId);
     }
 }

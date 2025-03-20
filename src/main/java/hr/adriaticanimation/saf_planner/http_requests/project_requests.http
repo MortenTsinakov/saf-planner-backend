@@ -2,7 +2,7 @@
 GET http://localhost:8080/api/projects
 
 ###
-GET http://localhost:8080/api/projects?id=3
+GET http://localhost:8080/api/projects?id=1
 
 ###
 POST http://localhost:8080/api/projects

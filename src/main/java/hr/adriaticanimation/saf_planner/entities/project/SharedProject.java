@@ -6,13 +6,15 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.sql.Timestamp;
 
 @Entity
 @Table(name = "shared_projects")
@@ -28,14 +30,15 @@ public class SharedProject {
     }
 
     @EmbeddedId
-    @Column(name = "id", nullable = false)
     private SharedProjectId id;
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @MapsId("projectId")
     @JoinColumn(name = "project", referencedColumnName = "id")
     private Project project;
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @MapsId("sharedWithId")
-    @JoinColumn(name = "sharedWith", referencedColumnName = "id")
+    @JoinColumn(name = "shared_with", referencedColumnName = "id")
     private User sharedWith;
+    @Column(name = "shared_at")
+    private Timestamp sharedAt;
 }

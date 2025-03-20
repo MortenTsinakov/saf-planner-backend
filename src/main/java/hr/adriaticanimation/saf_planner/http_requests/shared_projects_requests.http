@@ -12,6 +12,9 @@ POST localhost:8080/api/projects/shared
 Content-Type: application/json
 
 {
-    "projectId": 4,
-    "shareWithId": 1
+    "projectId": 1,
+    "shareWithId": 2
 }
+
+###
+DELETE localhost:8080/api/projects/shared?projectId=1&userId=2

@@ -3,6 +3,7 @@ package hr.adriaticanimation.saf_planner.services.project;
 import hr.adriaticanimation.saf_planner.dtos.fragment.SharedProjectFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.ShareProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.SharedProjectResponse;
+import hr.adriaticanimation.saf_planner.dtos.project.StopSharingProjectResponse;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.project.SharedProject;
@@ -16,6 +17,7 @@ import hr.adriaticanimation.saf_planner.repositories.project.ProjectRepository;
 import hr.adriaticanimation.saf_planner.repositories.project.SharedProjectRepository;
 import hr.adriaticanimation.saf_planner.repositories.user.UserRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -54,7 +56,7 @@ public class SharedProjectService {
     private Project fetchProject(Long id) {
         User user = authenticationService.getUserFromSecurityContextHolder();
         SharedProjectId sharedProjectId = new SharedProjectId(id, user.getId());
-        SharedProject sharedProject = sharedProjectRepository.getSharedProjectById(sharedProjectId)
+        SharedProject sharedProject = sharedProjectRepository.findById(sharedProjectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project was not found"));
         return sharedProject.getProject();
     }
@@ -82,6 +84,24 @@ public class SharedProjectService {
                 .stream()
                 .map(sp -> sharedProjectMapper.projectToSharedProjectResponse(sp.getProject()))
                 .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Transactional
+    public ResponseEntity<StopSharingProjectResponse> stopSharingProject(Long projectId, Long userId) {
+        User user = authenticationService.getUserFromSecurityContextHolder();
+
+        // Verify that the project is owned by the user making the request
+        projectRepository.getProjectByIdAndOwner(projectId, user)
+                        .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        sharedProjectRepository.deleteByProjectIdAndSharedWithId(projectId, userId);
+        StopSharingProjectResponse response = new StopSharingProjectResponse(
+                projectId,
+                userId,
+                "Successfully stopped sharing the project"
+        );
 
         return ResponseEntity.ok(response);
     }

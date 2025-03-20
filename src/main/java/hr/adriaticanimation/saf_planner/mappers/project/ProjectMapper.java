@@ -3,8 +3,10 @@ package hr.adriaticanimation.saf_planner.mappers.project;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 import hr.adriaticanimation.saf_planner.dtos.project.CreateProjectRequest;
 import hr.adriaticanimation.saf_planner.dtos.project.ProjectResponse;
+import hr.adriaticanimation.saf_planner.dtos.user.SharedWithResponse;
 import hr.adriaticanimation.saf_planner.entities.label.Label;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
+import hr.adriaticanimation.saf_planner.entities.project.SharedProject;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.mappers.label.LabelMapper;
 import org.mapstruct.Mapper;
@@ -20,6 +22,7 @@ import java.util.List;
 public interface ProjectMapper {
 
     @Mapping(target = "owner", expression = "java(String.format(\"%s %s\", project.getOwner().getFirstName(), project.getOwner().getLastName()))")
+    @Mapping(target = "sharedWith", source = "shared", qualifiedByName = "mapSharedWith")
     @Mapping(target = "labels", source = "labels", qualifiedByName = "mapLabels")
     ProjectResponse projectToProjectResponse(Project project);
 
@@ -37,6 +40,20 @@ public interface ProjectMapper {
         }
         return labels.stream()
                 .map(this::toLabelResponse)
+                .toList();
+    }
+
+    @Named("mapSharedWith")
+    default List<SharedWithResponse> mapSharedWith(List<SharedProject> sharedWith) {
+        if (sharedWith == null || sharedWith.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return sharedWith.stream()
+                .map(p -> new SharedWithResponse(
+                        p.getSharedWith().getId(),
+                        String.format("%s %s", p.getSharedWith().getFirstName(), p.getSharedWith().getLastName())
+                ))
                 .toList();
     }
 
