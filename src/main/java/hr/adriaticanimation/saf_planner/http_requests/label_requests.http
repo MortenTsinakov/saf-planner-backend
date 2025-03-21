@@ -39,9 +39,9 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:8080/api/label?id=39
+DELETE http://localhost:8080/api/label?id=59
 Content-Type: application/json
 
 ###
-DELETE http://localhost:8080/api/fragment/label?labelId=39&fragmentId=58
+DELETE http://localhost:8080/api/fragment/label?labelId=30&fragmentId=60
 Content-Type: application/json

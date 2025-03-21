@@ -1,7 +1,6 @@
 package hr.adriaticanimation.saf_planner.entities.label;
 
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
-import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -27,7 +26,6 @@ public class LabelInFragment {
     }
 
     @EmbeddedId
-    @Column(name = "id", nullable = false)
     private LabelInFragmentId id;
     @ManyToOne
     @MapsId("labelId")
