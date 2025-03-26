@@ -53,7 +53,7 @@ public class SharedProjectService {
         return ResponseEntity.ok(response);
     }
 
-    private Project fetchProject(Long id) {
+    public Project fetchProject(Long id) {
         User user = authenticationService.getUserFromSecurityContextHolder();
         SharedProjectId sharedProjectId = new SharedProjectId(id, user.getId());
         SharedProject sharedProject = sharedProjectRepository.findById(sharedProjectId)

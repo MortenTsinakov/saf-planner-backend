@@ -5,6 +5,7 @@ import hr.adriaticanimation.saf_planner.dtos.image.FragmentImageResponse;
 import hr.adriaticanimation.saf_planner.dtos.image.UploadImageRequest;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.image.FragmentImage;
+import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ImageException;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
@@ -12,6 +13,8 @@ import hr.adriaticanimation.saf_planner.mappers.image.FragmentImageMapper;
 import hr.adriaticanimation.saf_planner.repositories.fragment.FragmentRepository;
 import hr.adriaticanimation.saf_planner.repositories.image.FragmentImageRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
+import hr.adriaticanimation.saf_planner.services.project.SharedProjectService;
+import org.apache.coyote.Response;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -41,8 +44,9 @@ public class FragmentImageService {
 
     private final Path uploadDirectory;
     private final int MAX_DIMENSIONS = 750;
+    private final SharedProjectService sharedProjectService;
 
-    public FragmentImageService(@Value("${uploads.directory}") String uploadDir, AuthenticationService authenticationService, FragmentImageRepository fragmentImageRepository, FragmentRepository fragmentRepository, FragmentImageMapper fragmentImageMapper) {
+    public FragmentImageService(@Value("${uploads.directory}") String uploadDir, AuthenticationService authenticationService, FragmentImageRepository fragmentImageRepository, FragmentRepository fragmentRepository, FragmentImageMapper fragmentImageMapper, SharedProjectService sharedProjectService) {
         this.uploadDirectory = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {
             Files.createDirectories(uploadDirectory);
@@ -53,6 +57,7 @@ public class FragmentImageService {
         this.fragmentImageRepository = fragmentImageRepository;
         this.fragmentRepository = fragmentRepository;
         this.fragmentImageMapper = fragmentImageMapper;
+        this.sharedProjectService = sharedProjectService;
     }
 
     /**
@@ -143,17 +148,42 @@ public class FragmentImageService {
     }
 
     /**
-     * Fetch the requested image from the file system and return
-     * a Resource associated with it.
+     * Fetch the requested image when the request is made by the project
+     * owner
      *
      * @param imageFileName - image file name (with extension)
      * @return - Resource associated with the file name
      */
     public ResponseEntity<Resource> getImage(String imageFileName) {
+        User user = authenticationService.getUserFromSecurityContextHolder();
+        return getImageResponse(user.getId(), imageFileName);
+    }
+
+    /**
+     * Fetch the requested image when the request is made by
+     * a user who the project is shared with
+     *
+     * @param projectId - id of the project of the fragment the image is attached to
+     * @param imageFileName - name of the image file
+     * @return - Resource associated with the file name
+     */
+    public ResponseEntity<Resource> getSharedImage(Long projectId, String imageFileName) {
+        Project project = sharedProjectService.fetchProject(projectId);
+        User projectOwner = project.getOwner();
+        return getImageResponse(projectOwner.getId(), imageFileName);
+    }
+
+    /**
+     *
+     * @param ownerId - id of the user who owns the project of the fragment the image
+     *                  is attached to
+     * @param imageFileName - the image name
+     * @return - response entity that contains the image file.
+     */
+    private ResponseEntity<Resource> getImageResponse(Long ownerId, String imageFileName) {
         try {
-            User user = authenticationService.getUserFromSecurityContextHolder();
             Path path = uploadDirectory
-                    .resolve(String.valueOf(user.getId()))
+                    .resolve(String.valueOf(ownerId))
                     .resolve(imageFileName)
                     .normalize();
             Resource image = new UrlResource(path.toUri());
