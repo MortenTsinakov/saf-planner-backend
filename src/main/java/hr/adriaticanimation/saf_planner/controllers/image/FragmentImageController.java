@@ -33,6 +33,12 @@ public class FragmentImageController {
         return fragmentImageService.getImage(image);
     }
 
+    @GetMapping(value = "/shared", params = {"projectId", "image"})
+    @Operation(description = "Fetch image for shared project by image name")
+    public ResponseEntity<Resource> getSharedImage(@RequestParam("projectId") Long projectId, @RequestParam("image") String image) {
+        return fragmentImageService.getSharedImage(projectId, image);
+    }
+
     @PostMapping
     @Operation(description = "Attach an image to a fragment")
     public ResponseEntity<FragmentImageResponse> uploadImage(@Valid UploadImageRequest request, BindingResult bindingResult) {
