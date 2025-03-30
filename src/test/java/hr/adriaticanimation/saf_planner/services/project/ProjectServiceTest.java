@@ -48,7 +48,7 @@ class ProjectServiceTest {
         Long projectId = 1L;
         User user = new User();
         Project project = new Project();
-        ProjectResponse response = new ProjectResponse(null, null, null, null, null, null, null, null);
+        ProjectResponse response = new ProjectResponse(null, null, null, null, null, null, null, null, null);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(projectRepository.getProjectByIdAndOwner(projectId, user)).thenReturn(Optional.of(project));
@@ -90,6 +90,7 @@ class ProjectServiceTest {
                 timestamp,
                 timestamp,
                 "John Doe",
+                List.of(),
                 List.of()
                 );
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
@@ -115,7 +116,7 @@ class ProjectServiceTest {
         );
         Project project = new Project();
         ProjectResponse response = new ProjectResponse(
-                null, null, null, null, null, null, null, null
+                null, null, null, null, null, null, null, null, null
         );
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
@@ -145,7 +146,7 @@ class ProjectServiceTest {
                 Optional.empty()
         );
         ProjectResponse response = new ProjectResponse(
-                1L, "Title", null, null, null, null, null, null
+                1L, "Title", null, null, null, null, null, null, null
         );
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
@@ -195,7 +196,7 @@ class ProjectServiceTest {
                 Optional.of(description),
                 Optional.empty()
         );
-        ProjectResponse response = new ProjectResponse(1L, "Description", null, null, null, null, null, null);
+        ProjectResponse response = new ProjectResponse(1L, "Description", null, null, null, null, null, null, null);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(projectRepository.getProjectByIdAndOwner(projectId, user)).thenReturn(Optional.of(project));
@@ -225,7 +226,7 @@ class ProjectServiceTest {
                 Optional.empty(),
                 Optional.of(estimatedLengthInSeconds)
         );
-        ProjectResponse response = new ProjectResponse(1L, null, null, null, null, null, null, null);
+        ProjectResponse response = new ProjectResponse(1L, null, null, null, null, null, null, null, null);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(projectRepository.getProjectByIdAndOwner(projectId, user)).thenReturn(Optional.of(project));

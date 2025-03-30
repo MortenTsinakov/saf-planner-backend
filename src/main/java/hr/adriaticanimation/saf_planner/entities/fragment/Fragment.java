@@ -1,5 +1,6 @@
 package hr.adriaticanimation.saf_planner.entities.fragment;
 
+import hr.adriaticanimation.saf_planner.entities.comment.Comment;
 import hr.adriaticanimation.saf_planner.entities.image.FragmentImage;
 import hr.adriaticanimation.saf_planner.entities.label.LabelInFragment;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
@@ -52,4 +53,6 @@ public class Fragment {
     private List<LabelInFragment> labelInFragmentList;
     @OneToMany(mappedBy = "fragment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FragmentImage> images;
+    @OneToMany(mappedBy = "fragment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 }

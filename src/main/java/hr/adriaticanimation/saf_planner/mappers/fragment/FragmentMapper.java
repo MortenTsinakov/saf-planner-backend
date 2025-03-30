@@ -1,10 +1,12 @@
 package hr.adriaticanimation.saf_planner.mappers.fragment;
 
+import hr.adriaticanimation.saf_planner.dtos.comment.CommentResponse;
 import hr.adriaticanimation.saf_planner.dtos.fragment.CreateFragmentRequest;
 import hr.adriaticanimation.saf_planner.dtos.fragment.FragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.fragment.SharedProjectFragmentResponse;
 import hr.adriaticanimation.saf_planner.dtos.image.FragmentImageResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
+import hr.adriaticanimation.saf_planner.entities.comment.Comment;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.image.FragmentImage;
 import hr.adriaticanimation.saf_planner.entities.label.Label;
@@ -16,6 +18,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = LabelMapper.class)
@@ -24,6 +27,7 @@ public interface FragmentMapper {
     @Mapping(target = "projectId", expression = "java(fragment.getProject().getId())")
     @Mapping(target = "labels", source = "labelInFragmentList", qualifiedByName = "mapLabels")
     @Mapping(target = "images", source = "images", qualifiedByName = "mapImages")
+    @Mapping(target = "comments", source = "comments", qualifiedByName = "mapComments")
     FragmentResponse fragmentToFragmentResponse(Fragment fragment);
 
     @Mapping(target = "projectId", expression = "java(fragment.getProject().getId())")
@@ -54,6 +58,23 @@ public interface FragmentMapper {
                         image.getFragment().getId(),
                         String.format("%s.%s", image.getId(), image.getFileExtension()),
                         image.getDescription()
+                ))
+                .toList();
+    }
+
+    @Named("mapComments")
+    default List<CommentResponse> mapComments(List<Comment> comments) {
+        if (comments == null || comments.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return comments
+                .stream()
+                .sorted(Comparator.comparing(Comment::getLastUpdated).reversed())
+                .map(comment -> new CommentResponse(
+                     comment.getId(),
+                     comment.getContent(),
+                     String.format("%s %s", comment.getAuthor().getFirstName(), comment.getAuthor().getLastName()),
+                     comment.getLastUpdated()
                 ))
                 .toList();
     }
