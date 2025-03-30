@@ -1,0 +1,17 @@
+###
+POST http://localhost:8080/api/comments
+Content-Type: application/json
+
+{
+    "fragmentId": 2,
+    "content": "You should describe how Blue Fairy brings Pinocchio to life in more detail"
+}
+
+###
+PUT http://localhost:8080/api/comments
+Content-Type: application/json
+
+{
+    "commentId": 1,
+    "content": "    "
+}
