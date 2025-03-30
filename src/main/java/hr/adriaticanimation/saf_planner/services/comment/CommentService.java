@@ -1,11 +1,11 @@
 package hr.adriaticanimation.saf_planner.services.comment;
 
 import hr.adriaticanimation.saf_planner.dtos.comment.CommentResponse;
+import hr.adriaticanimation.saf_planner.dtos.comment.DeleteCommentResponse;
 import hr.adriaticanimation.saf_planner.dtos.comment.PostCommentRequest;
 import hr.adriaticanimation.saf_planner.dtos.comment.UpdateCommentRequest;
 import hr.adriaticanimation.saf_planner.entities.comment.Comment;
 import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
-import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
 import hr.adriaticanimation.saf_planner.mappers.comment.CommentMapper;
@@ -16,6 +16,9 @@ import hr.adriaticanimation.saf_planner.services.project.SharedProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.sql.Timestamp;
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -61,9 +64,32 @@ public class CommentService {
         }
 
         comment.setContent(request.content());
+        comment.setLastUpdated(Timestamp.from(Instant.now()));
         comment = commentRepository.save(comment);
 
         CommentResponse response = commentMapper.commentToCommentResponse(comment);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Delete comment with given id.
+     * @param commentId - id of the comment to be deleted
+     * @return - id of the deleted comment and a sucess message
+     */
+    public ResponseEntity<DeleteCommentResponse> deleteComment(Long commentId) {
+        User user = authenticationService.getUserFromSecurityContextHolder();
+        Comment comment = commentRepository.getCommentById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment with given id not found"));
+        if (!comment.getAuthor().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("Comment with given id not found");
+        }
+
+        commentRepository.delete(comment);
+        DeleteCommentResponse response = new DeleteCommentResponse(
+                comment.getId(),
+                "Comment was successfully deleted"
+        );
+
         return ResponseEntity.ok(response);
     }
 }

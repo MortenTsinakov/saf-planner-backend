@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
     "fragmentId": 2,
-    "content": "You should describe how Blue Fairy brings Pinocchio to life in more detail"
+    "content": "Comment to be deleted"
 }
 
 ###
@@ -13,5 +13,8 @@ Content-Type: application/json
 
 {
     "commentId": 1,
-    "content": "    "
+    "content": ""
 }
+
+###
+DELETE http://localhost:8080/api/comments?id=2
