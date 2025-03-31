@@ -32,6 +32,7 @@ public interface FragmentMapper {
 
     @Mapping(target = "projectId", expression = "java(fragment.getProject().getId())")
     @Mapping(target = "images", source = "images", qualifiedByName = "mapImages")
+    @Mapping(target = "comments", source = "comments", qualifiedByName = "mapComments")
     SharedProjectFragmentResponse fragmentToSharedProjectFragmentResponse(Fragment fragment);
 
     @Mapping(target = "id", ignore = true)
@@ -73,6 +74,7 @@ public interface FragmentMapper {
                 .map(comment -> new CommentResponse(
                      comment.getId(),
                      comment.getContent(),
+                     comment.getAuthor().getId(),
                      String.format("%s %s", comment.getAuthor().getFirstName(), comment.getAuthor().getLastName()),
                      comment.getLastUpdated()
                 ))

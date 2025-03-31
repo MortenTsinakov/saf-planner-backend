@@ -22,5 +22,6 @@ public interface CommentMapper {
     Comment postCommentRequestToComment(PostCommentRequest request, User user, Fragment fragment);
 
     @Mapping(target = "author", expression = "java(String.format(\"%s %s\", comment.getAuthor().getFirstName(), comment.getAuthor().getLastName()))")
+    @Mapping(target = "authorId", expression = "java(comment.getAuthor().getId())")
     CommentResponse commentToCommentResponse(Comment comment);
 }

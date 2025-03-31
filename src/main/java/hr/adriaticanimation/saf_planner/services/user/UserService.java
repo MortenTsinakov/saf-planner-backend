@@ -16,7 +16,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
-    private final double THRESHOLD = 0.3;  // Fuzzy search threshold
+    private static final double THRESHOLD = 0.3;  // Fuzzy search threshold
 
     public ResponseEntity<List<UserSearchResponse>> searchUser(String query) {
         if (query == null || query.isBlank() || query.length() < 3) {

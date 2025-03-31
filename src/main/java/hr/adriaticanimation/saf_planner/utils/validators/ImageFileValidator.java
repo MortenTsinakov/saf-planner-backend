@@ -13,9 +13,9 @@ import java.io.IOException;
 
 public class ImageFileValidator implements ConstraintValidator<ValidImageFile, MultipartFile> {
 
-    private final int MAX_FILENAME_LENGTH = 255;
-    private final long MAX_FILE_SIZE = 2 * 1024 * 1024; // 2mb
-    private final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "svg", "svg+xml"};
+    private static final int MAX_FILENAME_LENGTH = 255;
+    private static final long MAX_FILE_SIZE = 2L * 1024 * 1024; // 2mb
+    private final String[] allowedExtensions = {"jpg", "jpeg", "png", "webp", "svg", "svg+xml"};
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
@@ -62,7 +62,7 @@ public class ImageFileValidator implements ConstraintValidator<ValidImageFile, M
     }
 
     private boolean isValidExtension(String extension) {
-        for (String allowedExtension : ALLOWED_EXTENSIONS) {
+        for (String allowedExtension : allowedExtensions) {
             if (allowedExtension.equalsIgnoreCase(extension)) {
                 return true;
             }
@@ -75,7 +75,7 @@ public class ImageFileValidator implements ConstraintValidator<ValidImageFile, M
             Metadata metadata = new Metadata();
             Detector detector = new DefaultDetector();
             MediaType mediaType = detector.detect(new BufferedInputStream(file.getInputStream()), metadata);
-            for (String extension : ALLOWED_EXTENSIONS) {
+            for (String extension : allowedExtensions) {
                 if (extension.equalsIgnoreCase(mediaType.getSubtype())) {
                     return true;
                 }

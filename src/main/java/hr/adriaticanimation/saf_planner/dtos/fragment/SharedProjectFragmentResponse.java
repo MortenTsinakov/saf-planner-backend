@@ -1,5 +1,6 @@
 package hr.adriaticanimation.saf_planner.dtos.fragment;
 
+import hr.adriaticanimation.saf_planner.dtos.comment.CommentResponse;
 import hr.adriaticanimation.saf_planner.dtos.image.FragmentImageResponse;
 
 import java.util.List;
@@ -11,6 +12,7 @@ public record SharedProjectFragmentResponse(
         Integer durationInSeconds,
         Integer position,
         Long projectId,
-        List<FragmentImageResponse> images
+        List<FragmentImageResponse> images,
+        List<CommentResponse> comments
 ) {
 }
