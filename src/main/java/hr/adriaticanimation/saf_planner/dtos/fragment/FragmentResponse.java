@@ -1,5 +1,6 @@
 package hr.adriaticanimation.saf_planner.dtos.fragment;
 
+import hr.adriaticanimation.saf_planner.dtos.comment.CommentResponse;
 import hr.adriaticanimation.saf_planner.dtos.image.FragmentImageResponse;
 import hr.adriaticanimation.saf_planner.dtos.label.LabelResponse;
 
@@ -14,5 +15,6 @@ public record FragmentResponse(
         Integer position,
         Long projectId,
         List<LabelResponse> labels,
-        List<FragmentImageResponse> images
+        List<FragmentImageResponse> images,
+        List<CommentResponse> comments
 ) {}

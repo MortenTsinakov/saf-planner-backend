@@ -1,0 +1,20 @@
+###
+POST http://localhost:8080/api/comments
+Content-Type: application/json
+
+{
+    "fragmentId": 2,
+    "content": "Comment to be deleted"
+}
+
+###
+PUT http://localhost:8080/api/comments
+Content-Type: application/json
+
+{
+    "commentId": 1,
+    "content": ""
+}
+
+###
+DELETE http://localhost:8080/api/comments?id=2

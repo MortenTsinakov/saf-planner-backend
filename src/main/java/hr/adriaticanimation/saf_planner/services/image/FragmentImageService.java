@@ -14,7 +14,6 @@ import hr.adriaticanimation.saf_planner.repositories.fragment.FragmentRepository
 import hr.adriaticanimation.saf_planner.repositories.image.FragmentImageRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
 import hr.adriaticanimation.saf_planner.services.project.SharedProjectService;
-import org.apache.coyote.Response;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -43,7 +42,7 @@ public class FragmentImageService {
     private final FragmentImageMapper fragmentImageMapper;
 
     private final Path uploadDirectory;
-    private final int MAX_DIMENSIONS = 750;
+    private static final int MAX_DIMENSIONS = 750;
     private final SharedProjectService sharedProjectService;
 
     public FragmentImageService(@Value("${uploads.directory}") String uploadDir, AuthenticationService authenticationService, FragmentImageRepository fragmentImageRepository, FragmentRepository fragmentRepository, FragmentImageMapper fragmentImageMapper, SharedProjectService sharedProjectService) {
