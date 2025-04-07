@@ -1,5 +1,6 @@
 package hr.adriaticanimation.saf_planner.services.screenplay;
 
+import hr.adriaticanimation.saf_planner.dtos.screenplay.CreateScreenplayRequest;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.ScreenplayResponse;
 import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.screenplay.Screenplay;
@@ -23,6 +24,13 @@ public class ScreenplayService {
     private final ScreenplayMapper screenplayMapper;
     private final ProjectService projectService;
 
+    /**
+     * Get the screenplay for a project. If no screenplay has been created yet,
+     * return a template for a screenplay that the user can develop further.
+     *
+     * @param id - project id
+     * @return - screenplay for the project
+     */
     public ResponseEntity<ScreenplayResponse> getScreenplayForProject(Long id) {
         // The check whether the project belongs to the user is done in
         // ProjectService class.
@@ -56,5 +64,19 @@ public class ScreenplayService {
                 .content(content)
                 .project(project)
                 .build();
+    }
+
+    /**
+     * Save new screenplay to the database.
+     *
+     * @param request - request containing the project id and content of the screenplay
+     * @return - created screenplay
+     */
+    public ResponseEntity<ScreenplayResponse> createScreenplay(CreateScreenplayRequest request) {
+        Project project = projectService.getUserProjectById(request.projectId());
+        Screenplay screenplay = screenplayMapper.createScreenplayRequestToScreenplay(request, project);
+        screenplayRepository.save(screenplay);
+        ScreenplayResponse response = screenplayMapper.screenplayToScreenplayResponse(screenplay);
+        return ResponseEntity.ok(response);
     }
 }

@@ -1,2 +1,11 @@
 ###
-GET http://localhost:8080/api/screenplays?projectId=1
+GET http://localhost:8080/api/screenplays?projectId=4
+
+###
+POST http://localhost:8080/api/screenplays
+Content-Type: application/json
+
+{
+    "projectId": 4,
+    "content": {"id": 1, "type": "screenplay", "children": [{"type": "header", "children": [{"text": "fade in:"}]}, {"type": "action", "children": [{"text": "Action sequence"}]}]}
+}

@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.sql.Timestamp;
 
@@ -36,7 +37,8 @@ public class Screenplay {
     @JoinColumn(name = "project", referencedColumnName = "id", nullable = false)
     private Project project;
     @Convert(converter = ScreenplayContentConverter.class)
-    @Column(name = "content")
+    @ColumnTransformer(write = "?::json")
+    @Column(name = "content", columnDefinition = "json")
     private ScreenplayContent content;
     @Column(name = "created_at")
     private Timestamp createdAt;

@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hr.adriaticanimation.saf_planner.entities.screenplay.ScreenplayContent;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import lombok.extern.slf4j.Slf4j;
 
 @Converter
-@Slf4j
 public class ScreenplayContentConverter implements AttributeConverter<ScreenplayContent, String> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
