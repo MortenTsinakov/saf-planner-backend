@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface ScreenplayRepository extends JpaRepository<Screenplay, Long> {
     Optional<Screenplay> getScreenplayByProject(Project project);
+    Optional<Screenplay> getScreenplayById(Long id);
 }

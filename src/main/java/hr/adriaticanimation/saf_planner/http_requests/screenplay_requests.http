@@ -9,3 +9,15 @@ Content-Type: application/json
     "projectId": 4,
     "content": {"id": 1, "type": "screenplay", "children": [{"type": "header", "children": [{"text": "fade in:"}]}, {"type": "action", "children": [{"text": "Action sequence"}]}]}
 }
+
+###
+PUT http://localhost:8080/api/screenplays
+Content-Type: application/json
+
+{
+    "id": 1,
+    "content": {"id": 1, "type": "screenplay", "children": [{"type": "header", "children": [{"text": "fade in:"}]}, {"type": "action", "children": [{"text": "New action sequence"}]}]}
+}
+
+###
+DELETE http://localhost:8080/api/screenplays?id=1
