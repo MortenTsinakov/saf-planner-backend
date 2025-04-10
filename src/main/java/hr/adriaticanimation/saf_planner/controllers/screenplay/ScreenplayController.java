@@ -8,6 +8,7 @@ import hr.adriaticanimation.saf_planner.dtos.screenplay.UpdateScreenplayResponse
 import hr.adriaticanimation.saf_planner.entities.screenplay.Screenplay;
 import hr.adriaticanimation.saf_planner.services.screenplay.ScreenplayService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -36,13 +37,13 @@ public class ScreenplayController {
 
     @PostMapping
     @Operation(description = "Save new screenplay to database")
-    public ResponseEntity<ScreenplayResponse> createScreenplay(@RequestBody CreateScreenplayRequest request) {
+    public ResponseEntity<ScreenplayResponse> createScreenplay(@Valid @RequestBody CreateScreenplayRequest request) {
         return screenplayService.createScreenplay(request);
     }
 
     @PutMapping
     @Operation(description = "Update screenplay with given id")
-    public ResponseEntity<UpdateScreenplayResponse> updateScreenplay(@RequestBody UpdateScreenplayRequest request) {
+    public ResponseEntity<UpdateScreenplayResponse> updateScreenplay(@Valid @RequestBody UpdateScreenplayRequest request) {
         return screenplayService.updateScreenplay(request);
     }
 
