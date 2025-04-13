@@ -32,6 +32,7 @@ dependencies {
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	implementation 'org.apache.tika:tika-core:3.0.0'
 	implementation 'org.imgscalr:imgscalr-lib:4.2'
+	implementation 'org.apache.pdfbox:pdfbox:3.0.4'
 
 	compileOnly 'org.projectlombok:lombok'
 
