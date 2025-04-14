@@ -12,26 +12,49 @@ import hr.adriaticanimation.saf_planner.entities.screenplay.ScreenplayContent;
 import hr.adriaticanimation.saf_planner.entities.screenplay.ScreenplayElement;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
+import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ScreenplayException;
 import hr.adriaticanimation.saf_planner.mappers.screenplay.ScreenplayMapper;
 import hr.adriaticanimation.saf_planner.repositories.screenplay.ScreenplayRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
 import hr.adriaticanimation.saf_planner.services.project.ProjectService;
+import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.ActionBlockProperties;
+import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.BlockProperties;
+import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.CharacterBlockProperties;
+import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.DialogueBlockProperties;
+import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.HeadingBlockProperties;
+import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.ParentheticalBlockProperties;
+import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.TransitionBlockProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ScreenplayService {
 
     private final ScreenplayRepository screenplayRepository;
     private final ScreenplayMapper screenplayMapper;
     private final ProjectService projectService;
     private final AuthenticationService authenticationService;
+
+    @Value("${uploads.directory}")
+    private String uploadDirectory;
 
     /**
      * Get the screenplay for a project. If no screenplay has been created yet,
@@ -131,5 +154,160 @@ public class ScreenplayService {
 
         DeleteScreenplayResponse response = new DeleteScreenplayResponse(id, "Screenplay was successfully deleted");
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Export screenplay as PDF
+     * @param id - id of the screenplay
+     */
+    public ResponseEntity<byte[]> exportScreenplay(Long id) {
+        Screenplay screenplay = screenplayRepository.getScreenplayById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Screenplay with given id was not found"));
+        User user = authenticationService.getUserFromSecurityContextHolder();
+        if (!screenplay.getProject().getOwner().getId().equals(user.getId())) {
+            throw new ResourceNotFoundException("Screenplay with given id was not found");
+        }
+
+        try (PDDocument document = generatePDF(screenplay); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            document.save(outputStream);
+            document.close();
+            byte[] pdfBytes = outputStream.toByteArray();
+            outputStream.close();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentLength(pdfBytes.length);
+            headers.setContentDispositionFormData("attachment", "screenplay.pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new ScreenplayException("Could not export screenplay");
+        }
+    }
+
+    private PDDocument generatePDF(Screenplay screenplay) throws IOException {
+        PDDocument document = new PDDocument();
+        addPages(screenplay, document);
+        return document;
+    }
+
+    /**
+     * Divide the Screenplay content into pages and add them to the document provided.
+     */
+    private void addPages(Screenplay screenplay, PDDocument document) throws IOException {
+        PDPage page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+
+        List<ScreenplayLine> lines = contentToLines(screenplay.getContent());
+
+        float yPosition = ScreenplayConstants.PAGE_HEIGHT - ScreenplayConstants.MARGIN_TOP;
+
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+        for (ScreenplayLine line : lines) {
+            BlockProperties props = line.getProperties();
+            String text = line.getLine();
+
+            // Create new page if the line is not on page anymore
+            if (yPosition - ScreenplayConstants.LINE_HEIGHT < ScreenplayConstants.MARGIN_BOTTOM) {
+                contentStream.close();
+
+                page = new PDPage(PDRectangle.A4);
+                document.addPage(page);
+                contentStream = new PDPageContentStream(document, page);
+                yPosition = ScreenplayConstants.PAGE_HEIGHT - ScreenplayConstants.MARGIN_TOP;
+            }
+
+            // Write line
+            contentStream.beginText();
+            contentStream.setFont(props.getFont(), props.getFontSize());
+            contentStream.newLineAtOffset(props.getMarginLeft(), yPosition);
+            contentStream.showText(text);
+            contentStream.endText();
+
+            yPosition -= ScreenplayConstants.LINE_HEIGHT;
+        }
+        contentStream.close();
+    }
+
+    /**
+     * Take a ScreenplayContent object, and delegate the task of cutting the text of each
+     * child element to appropriately sized lines.
+     */
+    private List<ScreenplayLine> contentToLines(ScreenplayContent content) {
+        List<ScreenplayLine> lines = new ArrayList<>();
+        content.getChildren().forEach(child -> {
+            if (!child.getChildren().isEmpty()) {
+                try {
+                    List<ScreenplayLine> blockLines = null;
+                    switch (child.getType().toLowerCase()) {
+                        case "header":
+                            blockLines = createLines(child.getChildren().getFirst(), new HeadingBlockProperties());
+                            break;
+                        case "action":
+                            blockLines = createLines(child.getChildren().getFirst(), new ActionBlockProperties());
+                            break;
+                        case "character":
+                            blockLines = createLines(child.getChildren().getFirst(), new CharacterBlockProperties());
+                            break;
+                        case "parenthetical":
+                            blockLines = createLines(child.getChildren().getFirst(), new ParentheticalBlockProperties());
+                            break;
+                        case "dialogue":
+                            blockLines = createLines(child.getChildren().getFirst(), new DialogueBlockProperties());
+                            break;
+                        case "transition":
+                            blockLines = createLines(child.getChildren().getFirst(), new TransitionBlockProperties());
+                            break;
+                        default:
+                            break;
+                    }
+                    if (blockLines != null) {
+                        lines.addAll(blockLines);
+                    }
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                    throw new ScreenplayException("Exporting PDF failed");
+                }
+            }
+        });
+
+        return lines;
+    }
+
+    /**
+     * Take the text from inside a screenplay element and wrap the text into appropriately
+     * sized lines according to the block properties provided.
+     * Return a list of lines as ScreenplayLine objects.
+     */
+    private List<ScreenplayLine> createLines(ScreenplayElement element, BlockProperties properties) throws IOException {
+        List<ScreenplayLine> lines = new ArrayList<>();
+        String text = element.getText();
+        if (properties instanceof HeadingBlockProperties || properties instanceof CharacterBlockProperties || properties instanceof TransitionBlockProperties) {
+            text = text.toUpperCase();
+        } else if (properties instanceof ParentheticalBlockProperties) {
+            text = "(" + text + ")";
+        }
+        String[] words = text.split(" ");
+        StringBuilder line = new StringBuilder();
+        for (String word : words) {
+            String currentLine = line.isEmpty() ? word : line + " " + word;
+            float size = ScreenplayConstants.FONT.getStringWidth(currentLine) / 1000 * ScreenplayConstants.FONT_SIZE;
+            if (size > properties.getBlockWidth()) {
+                lines.add(new ScreenplayLine(line.toString(), properties));
+                line = new StringBuilder(word);
+            } else {
+                line = new StringBuilder(currentLine);
+            }
+        }
+        lines.add(new ScreenplayLine(line.toString(), properties));
+        if (properties instanceof HeadingBlockProperties || properties instanceof ActionBlockProperties || properties instanceof DialogueBlockProperties || properties instanceof TransitionBlockProperties) {
+            lines.add(new ScreenplayLine("", properties));
+        }
+        return lines;
     }
 }

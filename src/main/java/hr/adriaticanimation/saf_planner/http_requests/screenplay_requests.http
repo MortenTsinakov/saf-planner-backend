@@ -1,5 +1,5 @@
 ###
-GET http://localhost:8080/api/screenplays?projectId=4
+GET http://localhost:8080/api/screenplays?projectId=3
 
 ###
 POST http://localhost:8080/api/screenplays
@@ -21,3 +21,6 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:8080/api/screenplays?id=1
+
+###
+GET http://localhost:8080/api/screenplays/export?id=5

@@ -5,7 +5,6 @@ import hr.adriaticanimation.saf_planner.dtos.screenplay.DeleteScreenplayResponse
 import hr.adriaticanimation.saf_planner.dtos.screenplay.ScreenplayResponse;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.UpdateScreenplayRequest;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.UpdateScreenplayResponse;
-import hr.adriaticanimation.saf_planner.entities.screenplay.Screenplay;
 import hr.adriaticanimation.saf_planner.services.screenplay.ScreenplayService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -51,5 +50,11 @@ public class ScreenplayController {
     @Operation(description = "Delete screenplay with given id")
     public ResponseEntity<DeleteScreenplayResponse> deleteScreenplay(@RequestParam("id") Long id) {
         return screenplayService.deleteScreenplay(id);
+    }
+
+    @GetMapping(path = "/export", params = "id")
+    @Operation(description = "Export screenplay with given id as PDF")
+    public ResponseEntity<byte[]> exportScreenplay(@RequestParam("id") Long id) {
+        return screenplayService.exportScreenplay(id);
     }
 }
