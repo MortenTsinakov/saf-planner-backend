@@ -25,14 +25,18 @@ import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.Hea
 import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.ParentheticalBlockProperties;
 import hr.adriaticanimation.saf_planner.services.screenplay.block_properties.TransitionBlockProperties;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -41,6 +45,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ScreenplayService {
 
     private final ScreenplayRepository screenplayRepository;
@@ -155,7 +160,7 @@ public class ScreenplayService {
      * Export screenplay as PDF
      * @param id - id of the screenplay
      */
-    public void exportScreenplay(Long id) {
+    public ResponseEntity<byte[]> exportScreenplay(Long id) {
         Screenplay screenplay = screenplayRepository.getScreenplayById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Screenplay with given id was not found"));
         User user = authenticationService.getUserFromSecurityContextHolder();
@@ -163,18 +168,36 @@ public class ScreenplayService {
             throw new ResourceNotFoundException("Screenplay with given id was not found");
         }
 
-        generatePDF(screenplay);
-    }
+        try (PDDocument document = generatePDF(screenplay); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            document.save(outputStream);
+            document.close();
+            byte[] pdfBytes = outputStream.toByteArray();
+            outputStream.close();
 
-    private void generatePDF(Screenplay screenplay) {
-        try (PDDocument document = new PDDocument()) {
-            addPages(screenplay, document);
-            document.save(uploadDirectory + "/screenplay.pdf");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentLength(pdfBytes.length);
+            headers.setContentDispositionFormData("attachment", "screenplay.pdf");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .body(pdfBytes);
         } catch (IOException e) {
-            throw new ScreenplayException("Exporting screenplay failed");
-        };
+            log.error(e.getMessage(), e);
+            throw new ScreenplayException("Could not export screenplay");
+        }
     }
 
+    private PDDocument generatePDF(Screenplay screenplay) throws IOException {
+        PDDocument document = new PDDocument();
+        addPages(screenplay, document);
+        return document;
+    }
+
+    /**
+     * Divide the Screenplay content into pages and add them to the document provided.
+     */
     private void addPages(Screenplay screenplay, PDDocument document) throws IOException {
         PDPage page = new PDPage(PDRectangle.A4);
         document.addPage(page);
@@ -211,6 +234,10 @@ public class ScreenplayService {
         contentStream.close();
     }
 
+    /**
+     * Take a ScreenplayContent object, and delegate the task of cutting the text of each
+     * child element to appropriately sized lines.
+     */
     private List<ScreenplayLine> contentToLines(ScreenplayContent content) {
         List<ScreenplayLine> lines = new ArrayList<>();
         content.getChildren().forEach(child -> {
@@ -243,6 +270,7 @@ public class ScreenplayService {
                         lines.addAll(blockLines);
                     }
                 } catch (IOException e) {
+                    log.error(e.getMessage(), e);
                     throw new ScreenplayException("Exporting PDF failed");
                 }
             }
@@ -251,6 +279,11 @@ public class ScreenplayService {
         return lines;
     }
 
+    /**
+     * Take the text from inside a screenplay element and wrap the text into appropriately
+     * sized lines according to the block properties provided.
+     * Return a list of lines as ScreenplayLine objects.
+     */
     private List<ScreenplayLine> createLines(ScreenplayElement element, BlockProperties properties) throws IOException {
         List<ScreenplayLine> lines = new ArrayList<>();
         String text = element.getText();

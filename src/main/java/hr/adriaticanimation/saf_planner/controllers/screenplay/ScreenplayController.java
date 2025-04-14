@@ -54,7 +54,7 @@ public class ScreenplayController {
 
     @GetMapping(path = "/export", params = "id")
     @Operation(description = "Export screenplay with given id as PDF")
-    public void exportScreenplay(@RequestParam("id") Long id) {
-        screenplayService.exportScreenplay(id);
+    public ResponseEntity<byte[]> exportScreenplay(@RequestParam("id") Long id) {
+        return screenplayService.exportScreenplay(id);
     }
 }
