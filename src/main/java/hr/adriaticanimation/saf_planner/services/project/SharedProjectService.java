@@ -17,6 +17,7 @@ import hr.adriaticanimation.saf_planner.repositories.project.ProjectRepository;
 import hr.adriaticanimation.saf_planner.repositories.project.SharedProjectRepository;
 import hr.adriaticanimation.saf_planner.repositories.user.UserRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
+import hr.adriaticanimation.saf_planner.services.notification.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,7 @@ public class SharedProjectService {
     private final FragmentRepository fragmentRepository;
     private final SharedProjectMapper sharedProjectMapper;
     private final FragmentMapper fragmentMapper;
+    private final NotificationService notificationService;
 
 
     public ResponseEntity<SharedProjectResponse> getSharedProjectById(Long id) {
@@ -74,6 +76,9 @@ public class SharedProjectService {
         );
         sharedProject = sharedProjectRepository.save(sharedProject);
         SharedProjectResponse sharedProjectResponse = sharedProjectMapper.projectToSharedProjectResponse(sharedProject.getProject());
+
+        notificationService.createSharedProjectNotification(user, sharedWith, project);
+
         return ResponseEntity.ok(sharedProjectResponse);
     }
 

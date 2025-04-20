@@ -1,0 +1,13 @@
+###
+GET http://localhost:8080/api/notifications
+
+###
+PATCH http://localhost:8080/api/notifications
+Content-Type: application/json
+
+{
+    "id": 1
+}
+
+###
+POST http://localhost:8080/api/notifications/mark-all-as-read
