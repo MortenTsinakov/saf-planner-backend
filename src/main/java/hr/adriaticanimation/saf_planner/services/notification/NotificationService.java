@@ -85,6 +85,8 @@ public class NotificationService {
         notification = notificationRepository.save(notification);
         NotificationResponse response = notificationMapper.notificationToNotificationResponse(notification);
 
+        emitNotification(notification);
+
         return ResponseEntity.ok(response);
     }
 

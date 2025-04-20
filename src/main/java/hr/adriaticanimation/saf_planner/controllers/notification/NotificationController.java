@@ -8,6 +8,7 @@ import hr.adriaticanimation.saf_planner.dtos.notification.NotificationResponse;
 import hr.adriaticanimation.saf_planner.services.notification.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,7 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/subscribe")
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(description = "Subscribe to real time notifications")
     public SseEmitter subscribe() {
         return notificationService.subscribe();

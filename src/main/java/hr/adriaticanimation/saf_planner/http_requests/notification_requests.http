@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
     "recipient": 1,
-    "summary": "User sent you a notification",
+    "summary": "Test notification",
     "message": "Here will be the message itself. That part will be a bit longer."
 }
 
