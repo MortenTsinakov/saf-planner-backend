@@ -1,0 +1,23 @@
+###
+GET http://localhost:8080/api/notifications
+
+###
+POST http://localhost:8080/api/notifications
+Content-Type: application/json
+
+{
+    "recipient": 1,
+    "summary": "User sent you a notification",
+    "message": "Here will be the message itself. That part will be a bit longer."
+}
+
+###
+PATCH http://localhost:8080/api/notifications
+Content-Type: application/json
+
+{
+    "id": 1
+}
+
+###
+POST http://localhost:8080/api/notifications/mark-all-as-read
