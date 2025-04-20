@@ -2,19 +2,19 @@
 GET localhost:8080/api/projects/shared
 
 ###
-GET localhost:8080/api/projects/shared?projectId=1
+GET localhost:8080/api/projects/shared?projectId=4
 
 ###
-GET localhost:8080/api/projects/shared/fragments?projectId=1
+GET localhost:8080/api/projects/shared/fragments?projectId=4
 
 ###
 POST localhost:8080/api/projects/shared
 Content-Type: application/json
 
 {
-    "projectId": 1,
-    "shareWithId": 2
+    "projectId": 4,
+    "shareWithId": 1
 }
 
 ###
-DELETE localhost:8080/api/projects/shared?projectId=1&userId=3
+DELETE localhost:8080/api/projects/shared?projectId=4&userId=1

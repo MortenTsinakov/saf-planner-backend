@@ -5,7 +5,10 @@ import hr.adriaticanimation.saf_planner.dtos.notification.MarkNotificationAsRead
 import hr.adriaticanimation.saf_planner.dtos.notification.MarkNotificationsAsReadResponse;
 import hr.adriaticanimation.saf_planner.dtos.notification.NotificationRequest;
 import hr.adriaticanimation.saf_planner.dtos.notification.NotificationResponse;
+import hr.adriaticanimation.saf_planner.entities.comment.Comment;
+import hr.adriaticanimation.saf_planner.entities.fragment.Fragment;
 import hr.adriaticanimation.saf_planner.entities.notification.Notification;
+import hr.adriaticanimation.saf_planner.entities.project.Project;
 import hr.adriaticanimation.saf_planner.entities.user.User;
 import hr.adriaticanimation.saf_planner.exceptions.custom_exceptions.ResourceNotFoundException;
 import hr.adriaticanimation.saf_planner.mappers.notification.NotificationMapper;
@@ -93,5 +96,64 @@ public class NotificationService {
         notificationRepository.markAllNotificationsAsRead(user.getId());
         MarkNotificationsAsReadResponse response = new MarkNotificationsAsReadResponse("Notifications marked as read");
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Create a new notification about a shared project and emit the notification to the recipient.
+     *
+     * @param owner - owner of the shared project
+     * @param sharedWith - the user who the project was shared with and who will receive the notification
+     * @param project - project that was shared
+     */
+    public void createSharedProjectNotification(User owner, User sharedWith, Project project) {
+        String summary = String.format("%s %s shared their project with you", owner.getFirstName(), owner.getLastName());
+        String message = String.format("%s %s shared their project '%s' with you", owner.getFirstName(), owner.getLastName(), project.getTitle());
+        Notification notification = Notification.builder()
+                .recipient(sharedWith)
+                .sender(owner)
+                .summary(summary)
+                .message(message)
+                .isRead(false)
+                .createdAt(Timestamp.from(Instant.now()))
+                .build();
+        notification = notificationRepository.save(notification);
+    }
+
+    /**
+     * Create a new notification when a fragment has been commented and emit the notification
+     * to the owner of the project where the fragment belongs to.
+     *
+     * @param commenter - the user who wrote the comment
+     * @param fragment - fragment that was commented
+     * @param comment - comment that was written
+     */
+    public void createFragmentCommentNotification(User commenter, User owner, Fragment fragment, Comment comment) {
+        String summary = String.format("%s %s commented your project", commenter.getFirstName(), commenter.getLastName());
+        String message = String.format(
+                """
+                %s %s commented a fragment in your project '%s'.
+                
+                The fragment:
+                %s
+                
+                The comment:
+                %s
+                """,
+                commenter.getFirstName(),
+                commenter.getLastName(),
+                fragment.getProject().getTitle(),
+                fragment.getLongDescription(),
+                comment.getContent()
+        );
+
+        Notification notification = Notification.builder()
+                .recipient(owner)
+                .sender(commenter)
+                .summary(summary)
+                .message(message)
+                .createdAt(Timestamp.from(Instant.now()))
+                .isRead(false)
+                .build();
+        notification = notificationRepository.save(notification);
     }
 }

@@ -3,8 +3,8 @@ POST http://localhost:8080/api/comments
 Content-Type: application/json
 
 {
-    "fragmentId": 2,
-    "content": "Comment to be deleted"
+    "fragmentId": 80,
+    "content": "I really like how the long description has been updated here. Good job!"
 }
 
 ###

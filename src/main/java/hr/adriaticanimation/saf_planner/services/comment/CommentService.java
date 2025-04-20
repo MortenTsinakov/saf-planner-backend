@@ -12,6 +12,7 @@ import hr.adriaticanimation.saf_planner.mappers.comment.CommentMapper;
 import hr.adriaticanimation.saf_planner.repositories.comment.CommentRepository;
 import hr.adriaticanimation.saf_planner.repositories.fragment.FragmentRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
+import hr.adriaticanimation.saf_planner.services.notification.NotificationService;
 import hr.adriaticanimation.saf_planner.services.project.SharedProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ public class CommentService {
     private final SharedProjectService sharedProjectService;
     private final FragmentRepository fragmentRepository;
     private final CommentMapper commentMapper;
+    private final NotificationService notificationService;
 
     /**
      * Post comment for a fragment in a shared project.
@@ -47,6 +49,8 @@ public class CommentService {
         comment = commentRepository.save(comment);
 
         CommentResponse response = commentMapper.commentToCommentResponse(comment);
+        notificationService.createFragmentCommentNotification(user, fragment.getProject().getOwner(), fragment, comment);
+
         return ResponseEntity.ok(response);
     }
 
