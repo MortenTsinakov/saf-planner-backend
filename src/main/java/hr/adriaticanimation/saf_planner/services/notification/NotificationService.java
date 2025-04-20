@@ -18,10 +18,13 @@ import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationSe
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +34,24 @@ public class NotificationService {
     private final AuthenticationService authenticationService;
     private final UserRepository userRepository;
     private final NotificationMapper notificationMapper;
+    private final ConcurrentHashMap<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+
+    /**
+     * Subscribe to real time notifications.
+     * @return - SSE-emitter that is used to send notifications to the client.
+     */
+    public SseEmitter subscribe() {
+        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+        User user = authenticationService.getUserFromSecurityContextHolder();
+
+        emitters.put(user.getId(), emitter);
+
+        emitter.onCompletion(() -> emitters.remove(user.getId()));
+        emitter.onTimeout(() -> emitters.remove(user.getId()));
+        emitter.onError((e) -> emitters.remove(user.getId()));
+
+        return emitter;
+    }
 
     /**
      * Fetch all unread notifications directed at the user and return them.
@@ -117,6 +138,7 @@ public class NotificationService {
                 .createdAt(Timestamp.from(Instant.now()))
                 .build();
         notification = notificationRepository.save(notification);
+        emitNotification(notification);
     }
 
     /**
@@ -155,5 +177,23 @@ public class NotificationService {
                 .isRead(false)
                 .build();
         notification = notificationRepository.save(notification);
+        emitNotification(notification);
+    }
+
+    /**
+     * Send notification to the recipient if they have registered an emitter.
+     * @param notification - notification to send.
+     */
+    private void emitNotification(Notification notification) {
+        Long recipientId = notification.getRecipient().getId();
+        SseEmitter emitter = emitters.get(recipientId);
+        if (emitter != null) {
+            NotificationResponse notificationResponse = notificationMapper.notificationToNotificationResponse(notification);
+            try {
+                emitter.send(notificationResponse);
+            } catch (IOException e) {
+                emitter.complete();
+            }
+        }
     }
 }
