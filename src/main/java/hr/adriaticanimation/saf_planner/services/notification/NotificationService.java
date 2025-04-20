@@ -65,32 +65,6 @@ public class NotificationService {
     }
 
     /**
-     * Test endpoint for adding notifications
-     * @param request - notification request
-     * @return - the added notification
-     */
-    public ResponseEntity<NotificationResponse> addTestNotification(NotificationRequest request) {
-        User user = authenticationService.getUserFromSecurityContextHolder();
-        User recipient = userRepository.findById(request.recipient())
-                .orElseThrow(() -> new ResourceNotFoundException("Recipient not found"));
-
-        Notification notification = Notification.builder()
-                .recipient(recipient)
-                .sender(user)
-                .summary(request.summary())
-                .message(request.message())
-                .createdAt(Timestamp.from(Instant.now()))
-                .isRead(false)
-                .build();
-        notification = notificationRepository.save(notification);
-        NotificationResponse response = notificationMapper.notificationToNotificationResponse(notification);
-
-        emitNotification(notification);
-
-        return ResponseEntity.ok(response);
-    }
-
-    /**
      * Set the is_read field on a specific notification to true.
      * @param request - contains notification id
      * @return - Response containing a success message

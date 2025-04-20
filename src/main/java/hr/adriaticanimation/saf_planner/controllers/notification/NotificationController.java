@@ -41,12 +41,6 @@ public class NotificationController {
         return notificationService.getUnreadNotifications();
     }
 
-    @PostMapping
-    @Operation(description = "Test endpoint for adding notifications")
-    public ResponseEntity<NotificationResponse> addTestNotification(@RequestBody NotificationRequest request) {
-        return notificationService.addTestNotification(request);
-    }
-
     @PostMapping("/mark-all-as-read")
     @Operation(description = "Mark all user's notifications as read")
     public ResponseEntity<MarkNotificationsAsReadResponse> markAllAsRead() {

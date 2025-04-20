@@ -2,16 +2,6 @@
 GET http://localhost:8080/api/notifications
 
 ###
-POST http://localhost:8080/api/notifications
-Content-Type: application/json
-
-{
-    "recipient": 1,
-    "summary": "Test notification",
-    "message": "Here will be the message itself. That part will be a bit longer."
-}
-
-###
 PATCH http://localhost:8080/api/notifications
 Content-Type: application/json
 
