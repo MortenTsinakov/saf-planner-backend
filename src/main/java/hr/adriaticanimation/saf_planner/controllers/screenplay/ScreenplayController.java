@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.controllers.screenplay;
 
 import hr.adriaticanimation.saf_planner.dtos.screenplay.CreateScreenplayRequest;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.DeleteScreenplayResponse;
+import hr.adriaticanimation.saf_planner.dtos.screenplay.ScreenplayExportData;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.ScreenplayResponse;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.UpdateScreenplayRequest;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.UpdateScreenplayResponse;
@@ -52,9 +53,9 @@ public class ScreenplayController {
         return screenplayService.deleteScreenplay(id);
     }
 
-    @GetMapping(path = "/export", params = "id")
+    @PostMapping(path = "/export")
     @Operation(description = "Export screenplay with given id as PDF")
-    public ResponseEntity<byte[]> exportScreenplay(@RequestParam("id") Long id) {
-        return screenplayService.exportScreenplay(id);
+    public ResponseEntity<byte[]> exportScreenplay(@RequestBody ScreenplayExportData data) {
+        return screenplayService.exportScreenplay(data);
     }
 }

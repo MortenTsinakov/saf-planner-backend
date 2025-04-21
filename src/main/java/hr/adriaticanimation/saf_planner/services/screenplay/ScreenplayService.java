@@ -2,6 +2,7 @@ package hr.adriaticanimation.saf_planner.services.screenplay;
 
 import hr.adriaticanimation.saf_planner.dtos.screenplay.CreateScreenplayRequest;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.DeleteScreenplayResponse;
+import hr.adriaticanimation.saf_planner.dtos.screenplay.ScreenplayExportData;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.ScreenplayResponse;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.UpdateScreenplayRequest;
 import hr.adriaticanimation.saf_planner.dtos.screenplay.UpdateScreenplayResponse;
@@ -158,17 +159,17 @@ public class ScreenplayService {
 
     /**
      * Export screenplay as PDF
-     * @param id - id of the screenplay
+     * @param data - contains screenplay id and title page data
      */
-    public ResponseEntity<byte[]> exportScreenplay(Long id) {
-        Screenplay screenplay = screenplayRepository.getScreenplayById(id)
+    public ResponseEntity<byte[]> exportScreenplay(ScreenplayExportData data) {
+        Screenplay screenplay = screenplayRepository.getScreenplayById(data.id())
                 .orElseThrow(() -> new ResourceNotFoundException("Screenplay with given id was not found"));
         User user = authenticationService.getUserFromSecurityContextHolder();
         if (!screenplay.getProject().getOwner().getId().equals(user.getId())) {
             throw new ResourceNotFoundException("Screenplay with given id was not found");
         }
 
-        try (PDDocument document = generatePDF(screenplay); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        try (PDDocument document = generatePDF(screenplay, data); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             document.save(outputStream);
             document.close();
             byte[] pdfBytes = outputStream.toByteArray();
@@ -189,10 +190,85 @@ public class ScreenplayService {
         }
     }
 
-    private PDDocument generatePDF(Screenplay screenplay) throws IOException {
+    /**
+     * Generate a PDF document from the Screenplay provided.
+     * @param screenplay - Screenplay object containing the content to be exported to PDF.
+     * @return - PDF document containing the content of the Screenplay provided.
+     * @throws IOException - if the PDF document could not be generated.
+     */
+    private PDDocument generatePDF(Screenplay screenplay, ScreenplayExportData data) throws IOException {
         PDDocument document = new PDDocument();
+        addTitlePage(data, document);
         addPages(screenplay, document);
         return document;
+    }
+
+    /**
+     * Add the title page to the document provided.
+     * @param data - contains screenplay id and title page data.
+     * @param document - PDF document to which the title page will be added.
+     */
+    private void addTitlePage(ScreenplayExportData data, PDDocument document) throws IOException{
+        PDPage page = new PDPage(PDRectangle.A4);
+        document.addPage(page);
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+        if (data.title() != null && !data.title().isBlank()) {
+            String title = data.title().toUpperCase();
+            float lineWidth = ScreenplayConstants.FONT.getStringWidth(title) / 1000 * ScreenplayConstants.FONT_SIZE;
+            float x = (ScreenplayConstants.PAGE_WIDTH / 2) - (lineWidth / 2);
+            float y = ScreenplayConstants.PAGE_HEIGHT / 2 + ScreenplayConstants.LINE_HEIGHT * 2;
+            writeLine(title, contentStream, x, y);
+            drawUnderline(contentStream, x, x + lineWidth, y);
+        }
+        if (data.author() != null && !data.author().isBlank()) {
+            String by = "by";
+            float lineWidth = ScreenplayConstants.FONT.getStringWidth(by) / 1000 * ScreenplayConstants.FONT_SIZE;
+            float x = (ScreenplayConstants.PAGE_WIDTH / 2) - (lineWidth / 2);
+            float y = ScreenplayConstants.PAGE_HEIGHT / 2 + ScreenplayConstants.LINE_HEIGHT;
+            writeLine(by, contentStream, x, y);
+
+            lineWidth = ScreenplayConstants.FONT.getStringWidth(data.author()) / 1000 * ScreenplayConstants.FONT_SIZE;
+            x = (ScreenplayConstants.PAGE_WIDTH / 2) - (lineWidth / 2);
+            y = ScreenplayConstants.PAGE_HEIGHT / 2;
+            writeLine(data.author(), contentStream, x, y);
+        }
+        if (data.email() != null || data.phoneNumber() != null) {
+            float x = ScreenplayConstants.MARGIN_LEFT;
+            float y = ScreenplayConstants.MARGIN_BOTTOM + ScreenplayConstants.LINE_HEIGHT;
+            if (data.phoneNumber() != null && !data.phoneNumber().isBlank()) {
+                writeLine(data.phoneNumber(), contentStream, x, y);
+                y += ScreenplayConstants.LINE_HEIGHT;
+            }
+            if (data.email() != null && !data.email().isBlank()) {
+                writeLine(data.email(), contentStream, x, y);
+            }
+        }
+        if (data.date() != null) {
+            float lineWidth = ScreenplayConstants.FONT.getStringWidth(data.date()) / 1000 * ScreenplayConstants.FONT_SIZE;
+            float x = ScreenplayConstants.PAGE_WIDTH - ScreenplayConstants.MARGIN_RIGHT - lineWidth;
+            float y = ScreenplayConstants.MARGIN_BOTTOM + ScreenplayConstants.LINE_HEIGHT;
+            writeLine(data.date(), contentStream, x, y);
+        }
+
+        contentStream.close();
+    }
+
+    private void writeLine(String line, PDPageContentStream contentStream, float x, float y) throws IOException {
+        contentStream.beginText();
+        contentStream.setFont(ScreenplayConstants.FONT, ScreenplayConstants.FONT_SIZE);
+        contentStream.newLineAtOffset(x, y);
+        contentStream.showText(line);
+        contentStream.endText();
+    }
+
+    private void drawUnderline(PDPageContentStream contentStream, float sx, float ex, float y) throws IOException {
+        float lineWidth = 1f;
+        float deltaY = 3f;
+        contentStream.setLineWidth(lineWidth);
+        contentStream.moveTo(sx, y - deltaY);
+        contentStream.lineTo(ex, y - deltaY);
+        contentStream.stroke();
     }
 
     /**
