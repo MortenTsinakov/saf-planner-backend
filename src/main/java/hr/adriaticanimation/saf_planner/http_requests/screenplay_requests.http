@@ -23,4 +23,14 @@ Content-Type: application/json
 DELETE http://localhost:8080/api/screenplays?id=1
 
 ###
-GET http://localhost:8080/api/screenplays/export?id=5
+POST http://localhost:8080/api/screenplays/export
+Content-Type: application/json
+
+{
+    "id": 5,
+    "title": "Title of My Film",
+    "author": "Mahatma Gandhi",
+    "email": "mahatma.gandhi@email.com",
+    "phoneNumber": "+372 5123456",
+    "date": "21. November 2004"
+}
