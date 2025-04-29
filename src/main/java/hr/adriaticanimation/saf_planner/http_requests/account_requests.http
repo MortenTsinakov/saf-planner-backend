@@ -1,0 +1,17 @@
+###
+PATCH http://localhost:8080/api/account/name
+Content-Type: application/json
+
+{
+    "firstName": "Georgia",
+    "lastName": "O'Keeffe"
+}
+
+###
+PATCH http://localhost:8080/api/account/password
+Content-Type: application/json
+
+{
+    "oldPassword": "user4Password",
+    "newPassword": "12345678"
+}
