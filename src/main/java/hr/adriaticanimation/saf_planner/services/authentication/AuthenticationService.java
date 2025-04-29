@@ -181,7 +181,7 @@ public class AuthenticationService {
      * @param refreshTokenExpirationTime - Expiry for the refresh refreshToken
      * @return - headers containing the cookie that holds the JWT and refresh token
      */
-    private HttpHeaders createHeaders(String jwtToken,
+    public HttpHeaders createHeaders(String jwtToken,
                                       long jwtExpirationTime,
                                       String refreshToken,
                                       long refreshTokenExpirationTime) {
