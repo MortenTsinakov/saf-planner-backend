@@ -15,8 +15,8 @@ POST http://localhost:8080/api/auth/sign-in
 Content-Type: application/json
 
 {
-  "email": "user5@email.com",
-  "password": "user5Password"
+  "email": "user1@email.com",
+  "password": "user1Password"
 }
 > {% client.global.set("jwt", JSON.parse(JSON.stringify(response.body)).jwt);%}
 
