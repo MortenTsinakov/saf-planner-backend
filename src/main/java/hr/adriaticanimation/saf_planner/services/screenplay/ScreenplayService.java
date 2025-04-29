@@ -276,6 +276,7 @@ public class ScreenplayService {
      */
     private void addPages(Screenplay screenplay, PDDocument document) throws IOException {
         PDPage page = new PDPage(PDRectangle.A4);
+        Integer pageNr = 1;
         document.addPage(page);
 
         List<ScreenplayLine> lines = contentToLines(screenplay.getContent());
@@ -291,10 +292,12 @@ public class ScreenplayService {
             // Create new page if the line is not on page anymore
             if (yPosition - ScreenplayConstants.LINE_HEIGHT < ScreenplayConstants.MARGIN_BOTTOM) {
                 contentStream.close();
+                pageNr++;
 
                 page = new PDPage(PDRectangle.A4);
                 document.addPage(page);
                 contentStream = new PDPageContentStream(document, page);
+                writePageNumber(contentStream, pageNr);
                 yPosition = ScreenplayConstants.PAGE_HEIGHT - ScreenplayConstants.MARGIN_TOP;
             }
 
@@ -308,6 +311,22 @@ public class ScreenplayService {
             yPosition -= ScreenplayConstants.LINE_HEIGHT;
         }
         contentStream.close();
+    }
+
+    /**
+     * Write a page number on the page
+     */
+    private void writePageNumber(PDPageContentStream contentStream, Integer pageNr) throws IOException {
+        String text = String.format("%d.", pageNr);
+        float lineWidth = ScreenplayConstants.FONT.getStringWidth(text) / 1000 * ScreenplayConstants.FONT_SIZE;
+
+        contentStream.beginText();
+        contentStream.setFont(ScreenplayConstants.FONT, ScreenplayConstants.FONT_SIZE);
+        contentStream.newLineAtOffset(
+                ScreenplayConstants.PAGE_WIDTH - ScreenplayConstants.MARGIN_RIGHT - lineWidth,
+                ScreenplayConstants.PAGE_HEIGHT - (ScreenplayConstants.MARGIN_TOP / 2));
+        contentStream.showText(text);
+        contentStream.endText();
     }
 
     /**
