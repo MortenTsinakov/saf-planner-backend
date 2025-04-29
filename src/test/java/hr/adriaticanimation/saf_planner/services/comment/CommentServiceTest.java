@@ -13,6 +13,7 @@ import hr.adriaticanimation.saf_planner.mappers.comment.CommentMapper;
 import hr.adriaticanimation.saf_planner.repositories.comment.CommentRepository;
 import hr.adriaticanimation.saf_planner.repositories.fragment.FragmentRepository;
 import hr.adriaticanimation.saf_planner.services.authentication.AuthenticationService;
+import hr.adriaticanimation.saf_planner.services.notification.NotificationService;
 import hr.adriaticanimation.saf_planner.services.project.SharedProjectService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -41,6 +43,8 @@ class CommentServiceTest {
     @Mock
     private FragmentRepository fragmentRepository;
     @Mock
+    private NotificationService notificationService;
+    @Mock
     private CommentMapper commentMapper;
     @InjectMocks
     private CommentService commentService;
@@ -49,13 +53,14 @@ class CommentServiceTest {
     void testPostCommentSuccess() {
         PostCommentRequest request = new PostCommentRequest(1L, "Testing");
         User user = User.builder().id(1L).build();
-        Project project = Project.builder().id(1L).build();
+        User owner = User.builder().id(2L).build();
+        Project project = Project.builder().id(1L).owner(owner).build();
         Fragment fragment = Fragment.builder().id(1L).project(project).build();
         Comment comment = Comment.builder()
                 .id(1L)
                 .content(request.content())
                 .build();
-        CommentResponse commentResponse = new CommentResponse(1L, request.content(), null, null);
+        CommentResponse commentResponse = new CommentResponse(1L, request.content(), null, null, null);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(fragmentRepository.getFragmentById(request.fragmentId())).thenReturn(Optional.of(fragment));
@@ -73,6 +78,7 @@ class CommentServiceTest {
         verify(commentMapper).postCommentRequestToComment(request, user, fragment);
         verify(commentRepository).save(comment);
         verify(commentMapper).commentToCommentResponse(comment);
+        verify(notificationService).createFragmentCommentNotification(user, owner, fragment, comment);
     }
 
     @Test
@@ -100,7 +106,7 @@ class CommentServiceTest {
                 .id(1L)
                 .author(user)
                 .build();
-        CommentResponse response = new CommentResponse(1L, request.content(), null, null);
+        CommentResponse response = new CommentResponse(1L, request.content(), null, null, null);
 
         when(authenticationService.getUserFromSecurityContextHolder()).thenReturn(user);
         when(commentRepository.getCommentById(request.commentId())).thenReturn(Optional.of(comment));

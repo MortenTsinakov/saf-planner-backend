@@ -3,10 +3,10 @@ POST http://localhost:8080/api/auth/sign-up
 Content-Type: application/json
 
 {
-  "email": "user4@email.com",
-  "firstName": "Georgina",
-  "lastName": "Flintstone",
-  "password": "user4Password"
+  "email": "user5@email.com",
+  "firstName": "Test",
+  "lastName": "User",
+  "password": "user5Password"
 }
 > {% client.global.set("jwt", JSON.parse(JSON.stringify(response.body)).jwt);%}
 
@@ -15,8 +15,8 @@ POST http://localhost:8080/api/auth/sign-in
 Content-Type: application/json
 
 {
-  "email": "user1@email.com",
-  "password": "user1Password"
+  "email": "user5@email.com",
+  "password": "user5Password"
 }
 > {% client.global.set("jwt", JSON.parse(JSON.stringify(response.body)).jwt);%}
 
