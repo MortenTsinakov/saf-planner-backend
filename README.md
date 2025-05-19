@@ -3,7 +3,7 @@ Backend repo for Short Animation Film Planner
 
 ## Development
 
-Create a Docker compose file somewhere:
+Create a Docker compose file for the database somewhere:
 ```yaml
 services:
   postgres:
@@ -16,4 +16,14 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+```
+
+Run the database container:
+```bash
+docker compose up
+```
+
+Run the backend application:
+```bash
+./gradlew bootRun
 ```
